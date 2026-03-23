@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { CoinTable } from "@/components/dashboard/CoinTable";
+import { LiveCoinTable } from "@/components/dashboard/LiveCoinTable";
 import { RsiFilterPanel } from "@/components/dashboard/RsiFilterPanel";
-import { mockCoins, TimeFrame, CoinData } from "@/data/mockCoins";
+import { useMarkets, calculateRSI } from "@/lib/api/coingecko";
+import { TimeFrame } from "@/data/mockCoins";
 
 export default function MarketPage() {
-  const [filtered, setFiltered] = useState<CoinData[]>(mockCoins);
-  const [activeTimeframe, setActiveTimeframe] = useState<TimeFrame>('4h');
+  const { data: markets, isLoading } = useMarkets(1, 100);
+  const [rsiRange, setRsiRange] = useState({ min: 0, max: 100 });
+  const [activeTimeframe, setActiveTimeframe] = useState<TimeFrame>("4h");
 
-  const handleFilter = ({ timeframe, min, max }: { timeframe: TimeFrame; min: number; max: number }) => {
-    setActiveTimeframe(timeframe);
-    setFiltered(
-      mockCoins.filter((c) => {
-        const rsi = c.rsi[timeframe];
-        return rsi >= min && rsi <= max;
-      })
-    );
-  };
+  const filtered = useMemo(() => {
+    if (!markets) return [];
+    return markets.filter((c) => {
+      const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
+      return rsi >= rsiRange.min && rsi <= rsiRange.max;
+    });
+  }, [markets, rsiRange]);
 
   return (
     <DashboardLayout>
@@ -24,18 +24,22 @@ export default function MarketPage() {
         <div>
           <h1 className="font-display font-bold text-2xl text-glow">Mercado</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Filtre por RSI, médias móveis e sinais de compra/venda
+            Top 100 moedas com filtros de RSI e sinais em tempo real
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-          <aside className="space-y-4">
-            <RsiFilterPanel onFilter={handleFilter} activeTimeframe={activeTimeframe} />
+          <aside>
+            <RsiFilterPanel
+              onFilter={({ min, max }) => setRsiRange({ min, max })}
+              activeTimeframe={activeTimeframe}
+            />
           </aside>
           <div>
-            <CoinTable
+            <LiveCoinTable
               coins={filtered}
               title={`${filtered.length} moedas encontradas`}
+              isLoading={isLoading}
             />
           </div>
         </div>
