@@ -86,7 +86,7 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <Button variant="hero" size="sm" className="w-full mt-2">
+          <Button variant="hero" size="sm" className="w-full mt-2" onClick={() => navigate("/dashboard")}>
             Começar Grátis
           </Button>
         </div>
