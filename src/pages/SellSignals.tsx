@@ -1,10 +1,19 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { CoinTable } from "@/components/dashboard/CoinTable";
-import { mockCoins } from "@/data/mockCoins";
+import { LiveCoinTable } from "@/components/dashboard/LiveCoinTable";
+import { useMarkets, calculateRSI } from "@/lib/api/coingecko";
 import { TrendingDown } from "lucide-react";
+import { useMemo } from "react";
 
 export default function SellSignals() {
-  const sellCoins = mockCoins.filter((c) => c.signal === 'sell' || c.rsi['4h'] > 70 || c.rsi['12h'] > 70 || c.rsi['24h'] > 70);
+  const { data: markets, isLoading } = useMarkets(1, 100);
+
+  const sellCoins = useMemo(() => {
+    if (!markets) return [];
+    return markets.filter((c) => {
+      const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
+      return rsi >= 70;
+    });
+  }, [markets]);
 
   return (
     <DashboardLayout>
@@ -15,10 +24,15 @@ export default function SellSignals() {
           </div>
           <div>
             <h1 className="font-display font-bold text-2xl">Sinais de Venda</h1>
-            <p className="text-sm text-muted-foreground">Moedas com RSI acima de 70 nos timeframes 4H, 12H e 24H</p>
+            <p className="text-sm text-muted-foreground">Moedas com RSI ≥ 70 — possível correção</p>
           </div>
         </div>
-        <CoinTable coins={sellCoins} title={`${sellCoins.length} moedas sobrecompradas`} />
+        <LiveCoinTable coins={sellCoins} title={`${sellCoins.length} moedas sobrecompradas`} isLoading={isLoading} />
+        {!isLoading && sellCoins.length === 0 && (
+          <div className="glass-card rounded-lg p-8 text-center text-muted-foreground">
+            Nenhuma moeda com RSI ≥ 70 no momento. O mercado está em zona neutra ou sobrevendida.
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

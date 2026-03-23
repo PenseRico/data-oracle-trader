@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
@@ -12,6 +13,7 @@ const navLinks = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 20);
@@ -54,10 +56,10 @@ export function Navbar() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
             Entrar
           </Button>
-          <Button variant="hero" size="sm">
+          <Button variant="hero" size="sm" onClick={() => navigate("/dashboard")}>
             Começar Grátis
           </Button>
         </div>
@@ -84,7 +86,7 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <Button variant="hero" size="sm" className="w-full mt-2">
+          <Button variant="hero" size="sm" className="w-full mt-2" onClick={() => navigate("/dashboard")}>
             Começar Grátis
           </Button>
         </div>

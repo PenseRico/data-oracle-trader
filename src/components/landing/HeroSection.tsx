@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { ArrowRight, BarChart3, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function HeroSection() {
   const { ref, isVisible } = useScrollReveal(0.1);
+  const navigate = useNavigate();
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
@@ -57,7 +59,7 @@ export function HeroSection() {
               isVisible ? "animate-fade-up delay-300" : "opacity-0"
             }`}
           >
-            <Button variant="hero" size="lg" className="gap-2 px-8">
+            <Button variant="hero" size="lg" className="gap-2 px-8" onClick={() => navigate("/dashboard")}>
               Acessar plataforma
               <ArrowRight size={16} />
             </Button>

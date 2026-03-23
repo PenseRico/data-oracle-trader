@@ -1,49 +1,76 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MarketStats } from "@/components/dashboard/MarketStats";
-import { CoinTable } from "@/components/dashboard/CoinTable";
-import { mockCoins } from "@/data/mockCoins";
+import { LiveCoinTable } from "@/components/dashboard/LiveCoinTable";
+import { NewsPanel } from "@/components/dashboard/NewsPanel";
+import { TrendingCoins } from "@/components/dashboard/TrendingCoins";
+import { useMarkets, calculateRSI } from "@/lib/api/coingecko";
+import { useMemo } from "react";
 
 export default function Dashboard() {
-  const buyOpportunities = mockCoins.filter(c => c.signal === 'buy');
-  const sellSignals = mockCoins.filter(c => c.signal === 'sell');
+  const { data: markets, isLoading } = useMarkets(1, 50);
+
+  const { buyOpportunities, sellSignals } = useMemo(() => {
+    if (!markets) return { buyOpportunities: [], sellSignals: [] };
+    return {
+      buyOpportunities: markets.filter((c) => {
+        const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
+        return rsi <= 30;
+      }),
+      sellSignals: markets.filter((c) => {
+        const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
+        return rsi >= 70;
+      }),
+    };
+  }, [markets]);
 
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-[1400px] mx-auto">
         <div>
           <h1 className="font-display font-bold text-2xl text-glow">Visão Geral do Mercado</h1>
-          <p className="text-sm text-muted-foreground mt-1">Dados em tempo real do mercado cripto</p>
+          <p className="text-sm text-muted-foreground mt-1">Dados em tempo real via CoinGecko API</p>
         </div>
 
         <MarketStats />
 
-        {/* Buy opportunities */}
-        {buyOpportunities.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                Oportunidades de Compra — RSI Sobrevendido
-              </span>
-            </div>
-            <CoinTable coins={buyOpportunities} />
-          </div>
-        )}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
+          <div className="space-y-6">
+            {buyOpportunities.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                    Oportunidades de Compra — RSI ≤ 30
+                  </span>
+                </div>
+                <LiveCoinTable coins={buyOpportunities} />
+              </div>
+            )}
 
-        {/* Sell signals */}
-        {sellSignals.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-              <span className="text-xs font-semibold text-destructive uppercase tracking-wider">
-                Sinais de Venda — RSI Sobrecomprado
-              </span>
-            </div>
-            <CoinTable coins={sellSignals} />
-          </div>
-        )}
+            {sellSignals.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                  <span className="text-xs font-semibold text-destructive uppercase tracking-wider">
+                    Sinais de Venda — RSI ≥ 70
+                  </span>
+                </div>
+                <LiveCoinTable coins={sellSignals} />
+              </div>
+            )}
 
-        <CoinTable coins={mockCoins} title="Todas as Moedas" />
+            <LiveCoinTable
+              coins={markets || []}
+              title="Top 50 Moedas"
+              isLoading={isLoading}
+            />
+          </div>
+
+          <aside className="space-y-4">
+            <TrendingCoins />
+            <NewsPanel />
+          </aside>
+        </div>
       </div>
     </DashboardLayout>
   );

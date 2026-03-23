@@ -1,10 +1,19 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { CoinTable } from "@/components/dashboard/CoinTable";
-import { mockCoins } from "@/data/mockCoins";
+import { LiveCoinTable } from "@/components/dashboard/LiveCoinTable";
+import { useMarkets, calculateRSI } from "@/lib/api/coingecko";
 import { TrendingUp } from "lucide-react";
+import { useMemo } from "react";
 
 export default function BuySignals() {
-  const buyCoins = mockCoins.filter((c) => c.signal === 'buy' || c.rsi['4h'] < 30 || c.rsi['12h'] < 30 || c.rsi['24h'] < 30);
+  const { data: markets, isLoading } = useMarkets(1, 100);
+
+  const buyCoins = useMemo(() => {
+    if (!markets) return [];
+    return markets.filter((c) => {
+      const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
+      return rsi <= 30;
+    });
+  }, [markets]);
 
   return (
     <DashboardLayout>
@@ -15,10 +24,15 @@ export default function BuySignals() {
           </div>
           <div>
             <h1 className="font-display font-bold text-2xl text-glow">Oportunidades de Compra</h1>
-            <p className="text-sm text-muted-foreground">Moedas com RSI abaixo de 30 — possível reversão de alta</p>
+            <p className="text-sm text-muted-foreground">Moedas com RSI ≤ 30 — possível reversão de alta</p>
           </div>
         </div>
-        <CoinTable coins={buyCoins} title={`${buyCoins.length} oportunidades encontradas`} />
+        <LiveCoinTable coins={buyCoins} title={`${buyCoins.length} oportunidades`} isLoading={isLoading} />
+        {!isLoading && buyCoins.length === 0 && (
+          <div className="glass-card rounded-lg p-8 text-center text-muted-foreground">
+            Nenhuma moeda com RSI ≤ 30 no momento. O mercado está em zona neutra ou sobrecomprada.
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
