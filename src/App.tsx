@@ -5,6 +5,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
+import MarketPage from "./pages/MarketPage.tsx";
+import CoinDetail from "./pages/CoinDetail.tsx";
+import BuySignals from "./pages/BuySignals.tsx";
+import SellSignals from "./pages/SellSignals.tsx";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +21,18 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/market" element={<MarketPage />} />
+          <Route path="/dashboard/charts" element={<Dashboard />} />
+          <Route path="/dashboard/rsi-filters" element={<MarketPage />} />
+          <Route path="/dashboard/buy-signals" element={<BuySignals />} />
+          <Route path="/dashboard/sell-signals" element={<SellSignals />} />
+          <Route path="/dashboard/moving-averages" element={<MarketPage />} />
+          <Route path="/dashboard/alerts" element={<Dashboard />} />
+          <Route path="/dashboard/setups" element={<Dashboard />} />
+          <Route path="/dashboard/news" element={<Dashboard />} />
+          <Route path="/dashboard/community" element={<Dashboard />} />
+          <Route path="/dashboard/coin/:coinId" element={<CoinDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
