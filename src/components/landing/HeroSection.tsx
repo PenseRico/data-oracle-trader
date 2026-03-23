@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export function HeroSection() {
   const { ref, isVisible } = useScrollReveal(0.1);
+  const navigate = useNavigate();
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
