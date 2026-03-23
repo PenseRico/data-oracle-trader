@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { ArrowRight, BarChart3, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function HeroSection() {
   const { ref, isVisible } = useScrollReveal(0.1);
