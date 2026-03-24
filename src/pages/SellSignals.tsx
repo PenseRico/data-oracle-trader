@@ -1,19 +1,19 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { LiveCoinTable } from "@/components/dashboard/LiveCoinTable";
-import { useMarkets, calculateRSI } from "@/lib/api/coingecko";
+import { SignalEngineTable } from "@/components/dashboard/SignalEngineTable";
+import { useMarkets, useFearGreed } from "@/lib/api/coingecko";
+import { enrichCoins } from "@/lib/signalEngine";
 import { TrendingDown } from "lucide-react";
 import { useMemo } from "react";
 
 export default function SellSignals() {
   const { data: markets, isLoading } = useMarkets(1, 100);
+  const { data: fg } = useFearGreed();
+  const fgVal = fg?.data?.[0]?.value ? parseInt(fg.data[0].value) : undefined;
 
   const sellCoins = useMemo(() => {
     if (!markets) return [];
-    return markets.filter((c) => {
-      const rsi = calculateRSI(c.sparkline_in_7d?.price || []);
-      return rsi >= 70;
-    });
-  }, [markets]);
+    return enrichCoins(markets, fgVal).filter((c) => c.signal.total <= 0).sort((a, b) => a.signal.total - b.signal.total);
+  }, [markets, fgVal]);
 
   return (
     <DashboardLayout>
@@ -24,13 +24,13 @@ export default function SellSignals() {
           </div>
           <div>
             <h1 className="font-display font-bold text-2xl">Sinais de Venda</h1>
-            <p className="text-sm text-muted-foreground">Moedas com RSI ≥ 70 — possível correção</p>
+            <p className="text-sm text-muted-foreground">Moedas com Score ≤ 0 — confluência negativa</p>
           </div>
         </div>
-        <LiveCoinTable coins={sellCoins} title={`${sellCoins.length} moedas sobrecompradas`} isLoading={isLoading} />
+        <SignalEngineTable coins={sellCoins} title={`${sellCoins.length} moedas em alerta`} isLoading={isLoading} />
         {!isLoading && sellCoins.length === 0 && (
           <div className="glass-card rounded-lg p-8 text-center text-muted-foreground">
-            Nenhuma moeda com RSI ≥ 70 no momento. O mercado está em zona neutra ou sobrevendida.
+            Nenhuma moeda com Score ≤ 0 no momento.
           </div>
         )}
       </div>
