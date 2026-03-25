@@ -49,7 +49,7 @@ export default function CommunityPage() {
       .select("*, profiles(username, avatar_url)")
       .order("created_at", { ascending: true })
       .limit(200);
-    if (data) setMessages(data as Message[]);
+    if (data) setMessages(data as unknown as Message[]);
   }
 
   async function fetchSingleMessage(id: string) {
@@ -60,7 +60,7 @@ export default function CommunityPage() {
       .single();
     if (data) setMessages((prev) => {
       if (prev.find(m => m.id === data.id)) return prev;
-      return [...prev, data as Message];
+      return [...prev, data as unknown as Message];
     });
   }
 
