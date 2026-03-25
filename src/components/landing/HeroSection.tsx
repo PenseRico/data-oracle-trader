@@ -59,7 +59,7 @@ export function HeroSection() {
               isVisible ? "animate-fade-up delay-300" : "opacity-0"
             }`}
           >
-            <Button variant="hero" size="lg" className="gap-2 px-8" onClick={() => navigate("/dashboard")}>
+            <Button variant="hero" size="lg" className="gap-2 px-8" onClick={() => navigate("/auth")}>
               Acessar plataforma
               <ArrowRight size={16} />
             </Button>
