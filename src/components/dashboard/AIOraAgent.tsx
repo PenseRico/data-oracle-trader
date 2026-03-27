@@ -13,6 +13,8 @@ interface AIOraAgentProps {
     rsi: number;
     macd: { macd: number; signal: number; histogram: number };
     bb: { upper: number; lower: number; middle: number };
+    multiRsi?: Record<string, number>;
+    fundingRate?: number;
   };
 }
 
@@ -24,17 +26,22 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
     setAnalyzing(true);
     setTimeout(() => {
       // Simulate Technical Logic Summary
-      const { rsi, macd, bb } = indicators;
+      const { rsi, macd, bb, multiRsi, fundingRate } = indicators;
       let bias = "Neutral";
       let confidence = 65;
       
-      if (rsi < 30 && price < bb.lower) {
-        bias = "Bullish (Strong)";
-        confidence = 88;
-      } else if (rsi > 70 && price > bb.upper) {
-        bias = "Bearish (Exhaustion)";
-        confidence = 92;
-      } else if (indicators.macd.macd > 0 && rsi > 50) {
+      // Advanced Confluence Logic (Master V3)
+      const isMtfOversold = multiRsi && multiRsi["4h"] < 35 && multiRsi["1d"] < 40;
+      const isMtfOverbought = multiRsi && multiRsi["4h"] > 65 && multiRsi["1d"] > 60;
+      const isShortSqueezeRisk = fundingRate !== undefined && fundingRate < -0.01;
+
+      if (rsi < 30 && (isMtfOversold || isShortSqueezeRisk)) {
+        bias = "Strong Bullish (Institutional)";
+        confidence = isMtfOversold ? 94 : 88;
+      } else if (rsi > 70 && isMtfOverbought) {
+        bias = "Strong Bearish (Exhaustion)";
+        confidence = 91;
+      } else if (macd.macd > 0 && rsi > 50) {
         bias = "Bullish (Trending)";
         confidence = 74;
       }
@@ -42,13 +49,15 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
       setReport({
         bias,
         confidence,
-        strategy: rsi < 15 ? "DCA Entry / Snatch" : (rsi > 85 ? "Scalp Short / TP" : "Wait for Confluence"),
+        strategy: rsi < 15 ? "DCA Entry / Snatch" : (isShortSqueezeRisk ? "Aggressive Long / Squeeze Play" : "Wait for Confluence"),
         levels: {
-          support: (bb.lower * 0.995).toFixed(2),
-          resistance: (bb.upper * 1.005).toFixed(2),
-          tp: (price * (bias.includes("Bullish") ? 1.15 : 0.85)).toFixed(2)
+          support: (bb.lower * 0.995).toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          resistance: (bb.upper * 1.005).toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          tp: (price * (bias.includes("Bullish") ? 1.15 : 0.85)).toLocaleString(undefined, { minimumFractionDigits: 2 })
         },
-        insight: rsi < 30 ? "Mercado em exaustão vendedora. Probabilidade estatística de repique para a média móvel (BB Middle) é superior a 80% nas próximas 12-24h." : 
+        insight: isShortSqueezeRisk ? `Funding Rate extremamente negativo (${(fundingRate! * 100).toFixed(4)}%). Risco iminente de Short Squeeze com liquidez institucional forçando o preço acima da resistência.` :
+                 isMtfOversold ? "Confluência de múltiplos timeframes (1h+4h+1D) indica exaustão vendedora sistêmica. Níveis fundamentais de suporte atingidos." :
+                 rsi < 30 ? "Mercado em exaustão vendedora. Probabilidade estatística de repique para a média móvel (BB Middle) é superior a 80%." : 
                  rsi > 70 ? "Sobrecompra acentuada. Alvos de lucro atingidos. Volume decrescente sugere divergência vendedora iminente." :
                  "Consolidação lateral detectada. Evite entradas pesadas; aguarde rompimento das Bandas de Bollinger para confirmação de volume."
       });
@@ -67,8 +76,8 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
           <Command className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 className="font-display font-bold text-lg tracking-tight">O.R.A Agent (V2)</h2>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Oracle Resource Analyst • Professional</p>
+          <h2 className="font-display font-bold text-lg tracking-tight">O.R.A Agent (V3)</h2>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Oracle Resource Analyst • Institutional Mastery</p>
         </div>
       </div>
 

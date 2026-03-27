@@ -14,6 +14,7 @@ interface SignalEngineTableProps {
   coins: EnrichedCoin[];
   title?: string;
   isLoading?: boolean;
+  onSelect?: (symbol: string) => void;
 }
 
 type SortField = "rank" | "score" | "rsi" | "price" | "change24h" | "volume";
@@ -35,7 +36,7 @@ function ScoreBar({ score, max = 12 }: { score: number; max?: number }) {
   );
 }
 
-export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTableProps) {
+export function SignalEngineTable({ coins, title, isLoading, onSelect }: SignalEngineTableProps) {
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<SortField>("score");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -115,7 +116,10 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                     <Fragment key={coin.id}>
                       <TableRow
                         className={`border-border/20 cursor-pointer hover:bg-primary/5 transition-colors ${s.isGoldenZone ? "bg-cyan-500/5" : s.isExhaustionZone ? "bg-red-500/5" : ""}`}
-                        onClick={() => navigate(`/dashboard/coin/${coin.id}`)}
+                        onClick={() => {
+                          if (onSelect) onSelect(coin.symbol);
+                          else navigate(`/dashboard/coin/${coin.id}`);
+                        }}
                       >
                         <TableCell className="text-xs text-muted-foreground font-mono">{coin.market_cap_rank}</TableCell>
                         <TableCell>
@@ -124,6 +128,11 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                             <div>
                               <div className="font-medium text-sm">{coin.name}</div>
                               <div className="text-[10px] text-muted-foreground uppercase font-mono">{coin.symbol}</div>
+                              {coin.indicators.fundingRate !== undefined && (
+                                <Badge variant="outline" className={`text-[8px] h-3 px-1 border-none py-0 font-black tracking-tighter ${coin.indicators.fundingRate < 0 ? "text-green-500" : "text-muted-foreground/40"}`}>
+                                  FR: {(coin.indicators.fundingRate * 100).toFixed(4)}%
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </TableCell>

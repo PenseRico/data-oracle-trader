@@ -24,7 +24,7 @@ export interface SignalReason {
   factor: string;
   description: string;
   points: number;
-  category: "momentum" | "trend" | "volume" | "sentiment" | "volatility";
+  category: "momentum" | "trend" | "volume" | "sentiment" | "volatility" | "derivative";
 }
 
 export interface ScoreBreakdown {
@@ -33,6 +33,7 @@ export interface ScoreBreakdown {
   volume: number;
   sentiment: number;
   volatility: number;
+  derivative: number;
 }
 
 export interface SignalIndicators {
@@ -44,6 +45,9 @@ export interface SignalIndicators {
   ma20: number;
   ma80: number;
   fib: Record<number, number>;
+  multiRsi?: Record<string, number>;
+  fundingRate?: number;
+  openInterest?: number;
 }
 
 export interface EnrichedCoin extends CoinGeckoMarket {
@@ -69,7 +73,9 @@ function classifyScore(score: number): Pick<SignalScore, "classification" | "lab
 
 export function calculateSignalScore(
   coin: CoinGeckoMarket,
-  fearGreedValue?: number
+  fearGreedValue?: number,
+  multiRsi?: Record<string, number>,
+  fundingRate?: number
 ): SignalScore {
   const prices = coin.sparkline_in_7d?.price || [];
   const rsi = calculateRSI(prices);
@@ -88,6 +94,7 @@ export function calculateSignalScore(
   let volume = 0;
   let sentiment = 0;
   let volatility = 0;
+  let derivative = 0;
 
   // === MOMENTUM (RSI + StochRSI + MACD) ===
   // RSI
@@ -112,6 +119,20 @@ export function calculateSignalScore(
   } else if (rsi >= 70) {
     momentum -= 2;
     reasons.push({ factor: "RSI", description: `RSI alto (${Math.round(rsi)}) — sobrecomprado`, points: -2, category: "momentum" });
+  }
+
+  // Multi-Timeframe Confluence
+  if (multiRsi) {
+    const tf4h = multiRsi["4h"];
+    const tf1d = multiRsi["1d"];
+    
+    if (rsi < 30 && tf4h < 35 && tf1d < 40) {
+      momentum += 4;
+      reasons.push({ factor: "MTF RSI", description: "CONFLUÊNCIA DE SOBREVENDA (1h+4h+1D) — Altíssima probabilidade", points: 4, category: "momentum" });
+    } else if (rsi > 70 && tf4h > 65 && tf1d > 60) {
+      momentum -= 4;
+      reasons.push({ factor: "MTF RSI", description: "CONFLUÊNCIA DE SOBRECOMPRA (1h+4h+1D) — Risco de correção", points: -4, category: "momentum" });
+    }
   }
 
   // StochRSI
@@ -211,7 +232,18 @@ export function calculateSignalScore(
     }
   }
 
-  const total = momentum + trend + volume + sentiment + volatility;
+  // === DERIVATIVES (Funding Rate) ===
+  if (fundingRate !== undefined) {
+    if (fundingRate < -0.01) {
+      derivative += 3;
+      reasons.push({ factor: "Funding Rate", description: `Funding NEGATIVO (${fundingRate.toFixed(4)}) — Possível Short Squeeze`, points: 3, category: "derivative" });
+    } else if (fundingRate > 0.03) {
+      derivative -= 2;
+      reasons.push({ factor: "Funding Rate", description: `Funding ALTO (${fundingRate.toFixed(4)}) — Excesso de alavancagem Long`, points: -2, category: "derivative" });
+    }
+  }
+
+  const total = momentum + trend + volume + sentiment + volatility + derivative;
 
   // Logic for Confluence Level
   let confluenceCount = 0;
@@ -225,7 +257,7 @@ export function calculateSignalScore(
     total,
     ...classifyScore(total),
     reasons: reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points)),
-    breakdown: { momentum, trend, volume, sentiment, volatility },
+    breakdown: { momentum, trend, volume, sentiment, volatility, derivative },
     isGoldenZone,
     isExhaustionZone,
     confluence
@@ -234,10 +266,16 @@ export function calculateSignalScore(
 
 export function enrichCoins(
   coins: CoinGeckoMarket[],
-  fearGreedValue?: number
+  fearGreedValue?: number,
+  multiRsiData?: Record<string, Record<string, number>>,
+  derivativeData?: Record<string, any>
 ): EnrichedCoin[] {
   return coins.map((coin) => {
+    const symbol = coin.symbol.toUpperCase();
     const prices = coin.sparkline_in_7d?.price || [];
+    const multiRsi = multiRsiData?.[symbol];
+    const derivative = derivativeData?.[symbol];
+
     const indicators: SignalIndicators = {
       rsi: calculateRSI(prices),
       stochRsi: calculateStochRSI(prices),
@@ -247,6 +285,9 @@ export function enrichCoins(
       ma20: calculateSMA(prices, 20),
       ma80: calculateSMA(prices, 80),
       fib: calculateFibonacci(prices),
+      multiRsi: multiRsi,
+      fundingRate: derivative?.fundingRate,
+      openInterest: derivative?.openInterest,
     };
 
     return {
@@ -254,7 +295,7 @@ export function enrichCoins(
       ...indicators,
       indicators,
       volumeRatio: coin.total_volume / coin.market_cap,
-      signal: calculateSignalScore(coin, fearGreedValue),
+      signal: calculateSignalScore(coin, fearGreedValue, multiRsi, derivative?.fundingRate),
     };
   });
 }

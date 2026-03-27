@@ -10,11 +10,13 @@ import { SnatchAlertList } from "@/components/dashboard/SnatchAlertList";
 import { LiquiditySnatchMap } from "@/components/dashboard/LiquiditySnatchMap";
 import { MarketPulse } from "@/components/dashboard/MarketPulse";
 import { DailyOracleInsight } from "@/components/dashboard/DailyOracleInsight";
+import TradingViewChart from "@/components/dashboard/TradingViewChart";
 import { useMarkets, useFearGreed } from "@/lib/api/coingecko";
+import { useRsiHeatmapData, useDerivativeData } from "@/lib/api/binance";
 import { enrichCoins } from "@/lib/signalEngine";
 import { useMemo, useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutGrid, List, Sparkles, Coins, Zap, Target, Activity } from "lucide-react";
+import { LayoutGrid, List, Sparkles, Coins, Zap, Target, Activity, LineChart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface DashboardProps {
@@ -25,6 +27,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
   const { data: markets, isLoading } = useMarkets(1, 50);
   const { data: fg } = useFearGreed();
   const [activeTab, setActiveTab ] = useState<"overview" | "signals" | "rsi">(initialTab);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
 
   // Sync state with prop in case of navigation
   useEffect(() => {
@@ -33,21 +36,23 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
 
   const fearGreedValue = fg?.data?.[0]?.value ? parseInt(fg.data[0].value) : undefined;
 
-  const enriched = useMemo(() => {
-    if (!markets) return [];
-    return enrichCoins(markets, fearGreedValue);
-  }, [markets, fearGreedValue]);
-
   const heatmapSymbols = useMemo(() => {
     if (!markets) return [];
     const syms = markets
-      .slice(0, 20) // Get more to account for potential binance mismatches
+      .slice(0, 20)
       .map(m => m.symbol?.toUpperCase())
       .filter(s => s && s.trim() !== "");
     
-    // Deduplicate
     return Array.from(new Set(syms)).slice(0, 15);
   }, [markets]);
+
+  const { data: multiRsiData } = useRsiHeatmapData(heatmapSymbols);
+  const { data: derivativeData } = useDerivativeData(heatmapSymbols);
+
+  const enriched = useMemo(() => {
+    if (!markets) return [];
+    return enrichCoins(markets, fearGreedValue, multiRsiData, derivativeData);
+  }, [markets, fearGreedValue, multiRsiData, derivativeData]);
 
   const selectedCoinForAI = enriched[0];
 
@@ -120,6 +125,14 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 px-1">
+                    <LineChart className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic underline decoration-primary/30">Institutional Analysis Terminal — {selectedSymbol}</span>
+                  </div>
+                  <TradingViewChart symbol={selectedSymbol} />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 px-1">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <h3 className="text-sm font-bold uppercase tracking-widest">Ativos em Confluência Crítica</h3>
                   </div>
@@ -127,6 +140,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                     coins={enriched.filter(c => c.signal.confluence === "High" || c.signal.isGoldenZone).slice(0, 10)}
                     title=""
                     isLoading={isLoading}
+                    onSelect={(s) => setSelectedSymbol(`${s}USDT`)}
                   />
                 </div>
               </>
@@ -144,6 +158,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                   coins={enriched}
                   title=""
                   isLoading={isLoading}
+                  onSelect={(s) => setSelectedSymbol(`${s}USDT`)}
                 />
               </div>
             )}

@@ -118,3 +118,47 @@ export function useRsiHeatmapData(symbols: string[]) {
     enabled: symbols.length > 0,
   });
 }
+
+// Fetch funding rate and open interest from Binance Futures (Public API)
+export async function fetchBinanceDerivativeData(symbol: string) {
+  const formattedSymbol = symbol.toUpperCase().endsWith("USDT") ? symbol.toUpperCase() : `${symbol.toUpperCase()}USDT`;
+  
+  try {
+    const [fundingRes, oiRes] = await Promise.all([
+      fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${formattedSymbol}`),
+      fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${formattedSymbol}`)
+    ]);
+
+    if (!fundingRes.ok || !oiRes.ok) return null;
+
+    const fundingData = await fundingRes.json();
+    const oiData = await oiRes.json();
+
+    return {
+      fundingRate: parseFloat(fundingData.lastFundingRate),
+      nextFundingTime: fundingData.nextFundingTime,
+      openInterest: parseFloat(oiData.openInterest),
+      timestamp: oiData.time
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Hook for batch derivative data (Global Market Status)
+export function useDerivativeData(symbols: string[]) {
+  return useQuery({
+    queryKey: ["binance-derivatives", symbols],
+    queryFn: async () => {
+      const results: Record<string, any> = {};
+      // Fetch top symbols in parallel
+      await Promise.all(symbols.map(async (s) => {
+        const data = await fetchBinanceDerivativeData(s);
+        if (data) results[s] = data;
+      }));
+      return results;
+    },
+    staleTime: 60_000,
+    enabled: symbols.length > 0,
+  });
+}
