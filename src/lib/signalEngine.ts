@@ -14,6 +14,9 @@ export interface SignalScore {
   emoji: string;
   reasons: SignalReason[];
   breakdown: ScoreBreakdown;
+  isGoldenZone: boolean; // RSI < 10
+  isExhaustionZone: boolean; // RSI > 85
+  confluence: "Low" | "Medium" | "High";
 }
 
 export interface SignalReason {
@@ -31,6 +34,16 @@ export interface ScoreBreakdown {
   volatility: number;
 }
 
+export interface SignalIndicators {
+  rsi: number;
+  stochRsi: number;
+  macd: { macd: number; signal: number; histogram: number };
+  bb: { middle: number; upper: number; lower: number };
+  ma10: number;
+  ma20: number;
+  ma80: number;
+}
+
 export interface EnrichedCoin extends CoinGeckoMarket {
   rsi: number;
   stochRsi: number;
@@ -39,6 +52,7 @@ export interface EnrichedCoin extends CoinGeckoMarket {
   ma10: number;
   ma20: number;
   ma80: number;
+  indicators: SignalIndicators;
   signal: SignalScore;
   volumeRatio: number;
 }
@@ -74,12 +88,21 @@ export function calculateSignalScore(
 
   // === MOMENTUM (RSI + StochRSI + MACD) ===
   // RSI
-  if (rsi <= 25) {
+  const isGoldenZone = rsi <= 10;
+  const isExhaustionZone = rsi >= 85;
+
+  if (isGoldenZone) {
+    momentum += 5; // MASSIVE WEIGHT for extreme RSI
+    reasons.push({ factor: "RSI GOLDEN ZONE", description: `RSI EXTREMO (${Math.round(rsi)}) — Oportunidade rara de compra`, points: 5, category: "momentum" });
+  } else if (rsi <= 25) {
     momentum += 3;
     reasons.push({ factor: "RSI", description: `RSI extremamente baixo (${Math.round(rsi)}) — sobrevendido forte`, points: 3, category: "momentum" });
   } else if (rsi <= 30) {
     momentum += 2;
     reasons.push({ factor: "RSI", description: `RSI baixo (${Math.round(rsi)}) — sobrevendido`, points: 2, category: "momentum" });
+  } else if (isExhaustionZone) {
+    momentum -= 5;
+    reasons.push({ factor: "RSI EXHAUSTION", description: `RSI EXTREMO (${Math.round(rsi)}) — Zona de perigo / Venda`, points: -5, category: "momentum" });
   } else if (rsi >= 75) {
     momentum -= 3;
     reasons.push({ factor: "RSI", description: `RSI muito alto (${Math.round(rsi)}) — sobrecomprado forte`, points: -3, category: "momentum" });
@@ -172,11 +195,22 @@ export function calculateSignalScore(
 
   const total = momentum + trend + volume + sentiment + volatility;
 
+  // Logic for Confluence Level
+  let confluenceCount = 0;
+  if (rsi < 30 && currentPrice < bb.lower) confluenceCount++;
+  if (rsi < 15) confluenceCount++;
+  if (fearGreedValue !== undefined && fearGreedValue < 20) confluenceCount++;
+  
+  const confluence = confluenceCount >= 2 ? "High" : (confluenceCount === 1 ? "Medium" : "Low");
+
   return {
     total,
     ...classifyScore(total),
     reasons: reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points)),
     breakdown: { momentum, trend, volume, sentiment, volatility },
+    isGoldenZone,
+    isExhaustionZone,
+    confluence
   };
 }
 
@@ -186,8 +220,7 @@ export function enrichCoins(
 ): EnrichedCoin[] {
   return coins.map((coin) => {
     const prices = coin.sparkline_in_7d?.price || [];
-    return {
-      ...coin,
+    const indicators: SignalIndicators = {
       rsi: calculateRSI(prices),
       stochRsi: calculateStochRSI(prices),
       macd: calculateMACD(prices),
@@ -195,6 +228,12 @@ export function enrichCoins(
       ma10: calculateSMA(prices, 10),
       ma20: calculateSMA(prices, 20),
       ma80: calculateSMA(prices, 80),
+    };
+
+    return {
+      ...coin,
+      ...indicators,
+      indicators,
       volumeRatio: coin.total_volume / coin.market_cap,
       signal: calculateSignalScore(coin, fearGreedValue),
     };

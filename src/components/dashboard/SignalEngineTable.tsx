@@ -102,117 +102,133 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sorted.map((coin) => {
-              const s = coin.signal;
-              const change24 = coin.price_change_percentage_24h_in_currency ?? 0;
-              const change7d = coin.price_change_percentage_7d_in_currency ?? 0;
-              const sparkData = coin.sparkline_in_7d?.price?.filter((_, i) => i % 6 === 0) || [];
-              const isExpanded = expandedId === coin.id;
+                {sorted.map((coin) => {
+                  const s = coin.signal;
+                  const change24 = coin.price_change_percentage_24h_in_currency ?? 0;
+                  const change7d = coin.price_change_percentage_7d_in_currency ?? 0;
+                  const sparkData = coin.sparkline_in_7d?.price?.filter((_, i) => i % 6 === 0) || [];
+                  const isExpanded = expandedId === coin.id;
 
-              return (
-                <>
-                  <TableRow
-                    key={coin.id}
-                    className="border-border/20 cursor-pointer hover:bg-primary/5 transition-colors"
-                    onClick={() => navigate(`/dashboard/coin/${coin.id}`)}
-                  >
-                    <TableCell className="text-xs text-muted-foreground font-mono">{coin.market_cap_rank}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <img src={coin.image} alt={coin.name} className="h-6 w-6 rounded-full" />
-                        <div>
-                          <div className="font-medium text-sm">{coin.name}</div>
-                          <div className="text-xs text-muted-foreground uppercase">{coin.symbol}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className={`text-sm font-mono font-bold ${getClassColor(s.classification)}`}>
-                          {s.total}
-                        </span>
-                        <ScoreBar score={s.total} />
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="outline" className={`text-[10px] px-2 py-0.5 ${getClassBg(s.classification)}`}>
-                        {s.emoji} {s.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">{formatPrice(coin.current_price)}</TableCell>
-                    <TableCell className="text-right hidden md:table-cell">
-                      <span className={`text-sm font-mono ${change24 >= 0 ? "text-primary" : "text-destructive"}`}>
-                        {change24 >= 0 ? "+" : ""}{change24.toFixed(2)}%
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={`inline-flex items-center justify-center text-xs font-mono font-bold px-2 py-0.5 rounded ${
-                        coin.rsi >= 70 ? "bg-destructive/10 text-destructive" : coin.rsi <= 30 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {Math.round(coin.rsi)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center hidden md:table-cell">
-                      <div className="flex items-center justify-center gap-1">
-                        {coin.ma10 > coin.ma20 ? (
-                          <span className="text-[10px] text-primary">▲ Bull</span>
-                        ) : (
-                          <span className="text-[10px] text-destructive">▼ Bear</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground font-mono hidden lg:table-cell">
-                      {formatMarketCap(coin.total_volume)}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      <MiniSparkline data={sparkData} positive={change7d >= 0} />
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : coin.id); }}
-                        className="p-1 hover:bg-primary/10 rounded transition-colors"
+                  return (
+                    <div key={coin.id} className="contents">
+                      <TableRow
+                        className={`border-border/20 cursor-pointer hover:bg-primary/5 transition-colors ${s.isGoldenZone ? "bg-cyan-500/5" : s.isExhaustionZone ? "bg-red-500/5" : ""}`}
+                        onClick={() => navigate(`/dashboard/coin/${coin.id}`)}
                       >
-                        {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                      </button>
-                    </TableCell>
-                  </TableRow>
+                        <TableCell className="text-xs text-muted-foreground font-mono">{coin.market_cap_rank}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <img src={coin.image} alt={coin.name} className="h-6 w-6 rounded-full" />
+                            <div>
+                              <div className="font-medium text-sm">{coin.name}</div>
+                              <div className="text-[10px] text-muted-foreground uppercase font-mono">{coin.symbol}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className={`text-sm font-mono font-bold ${getClassColor(s.classification)}`}>
+                              {s.total}
+                            </span>
+                            <ScoreBar score={s.total} />
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <Badge variant="outline" className={`text-[10px] px-2 py-0.5 whitespace-nowrap ${getClassBg(s.classification)}`}>
+                              {s.emoji} {s.label}
+                            </Badge>
+                            {s.confluence === "High" && (
+                              <Badge variant="outline" className="text-[8px] px-1 bg-primary/10 text-primary border-primary/20 uppercase font-bold">
+                                High Confluence
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatPrice(coin.current_price)}</TableCell>
+                        <TableCell className="text-right hidden md:table-cell">
+                          <span className={`text-sm font-mono ${change24 >= 0 ? "text-primary" : "text-destructive"}`}>
+                            {change24 >= 0 ? "+" : ""}{change24.toFixed(2)}%
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className={`inline-flex items-center justify-center text-xs font-mono font-bold px-2 py-0.5 rounded transition-all ${
+                              s.isGoldenZone ? "bg-cyan-500 text-black animate-pulse" : 
+                              s.isExhaustionZone ? "bg-red-500 text-black animate-pulse" :
+                              coin.rsi >= 70 ? "bg-destructive/10 text-destructive" : 
+                              coin.rsi <= 30 ? "bg-primary/10 text-primary" : 
+                              "bg-muted text-muted-foreground"
+                            }`}>
+                              {Math.round(coin.rsi)}
+                            </span>
+                            {s.isGoldenZone && <span className="text-[8px] text-cyan-400 font-bold uppercase">Golden</span>}
+                            {s.isExhaustionZone && <span className="text-[8px] text-red-400 font-bold uppercase">Exhaust</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center hidden md:table-cell">
+                          <div className="flex items-center justify-center gap-1">
+                            {coin.ma10 > coin.ma20 ? (
+                              <span className="text-[10px] text-primary">▲ Bull</span>
+                            ) : (
+                              <span className="text-[10px] text-destructive">▼ Bear</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground font-mono hidden lg:table-cell">
+                          {formatMarketCap(coin.total_volume)}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-right">
+                          <div className="flex justify-end">
+                            <MiniSparkline data={sparkData} positive={change7d >= 0} />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setExpandedId(isExpanded ? null : coin.id); }}
+                            className="p-1 hover:bg-primary/10 rounded transition-colors"
+                          >
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                          </button>
+                        </TableCell>
+                      </TableRow>
 
-                  {isExpanded && (
-                    <TableRow key={`${coin.id}-details`} className="border-border/10 bg-card/30">
-                      <TableCell colSpan={11} className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                            <Info className="h-3 w-3" />
-                            Por que {s.label}? — Análise de confluência
-                          </div>
-                          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                            {(["momentum", "trend", "volatility", "volume", "sentiment"] as const).map((cat) => (
-                              <div key={cat} className="glass-card rounded-lg p-3 space-y-1">
-                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cat}</span>
-                                <div className={`text-lg font-mono font-bold ${s.breakdown[cat] > 0 ? "text-primary" : s.breakdown[cat] < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                                  {s.breakdown[cat] > 0 ? "+" : ""}{s.breakdown[cat]}
-                                </div>
+                      {isExpanded && (
+                        <TableRow className="border-border/10 bg-card/30">
+                          <TableCell colSpan={11} className="p-4">
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <Info className="h-3 w-3" />
+                                Análise de Confluência — Nível: <span className="text-primary font-bold">{s.confluence}</span>
                               </div>
-                            ))}
-                          </div>
-                          <div className="space-y-1.5">
-                            {s.reasons.map((r, i) => (
-                              <div key={i} className="flex items-center gap-2 text-xs">
-                                <span className={`font-mono font-bold w-8 text-right ${r.points > 0 ? "text-primary" : r.points < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                                  {r.points > 0 ? "+" : ""}{r.points}
-                                </span>
-                                <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-border/50">{r.factor}</Badge>
-                                <span className="text-muted-foreground">{r.description}</span>
+                              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                {(["momentum", "trend", "volatility", "volume", "sentiment"] as const).map((cat) => (
+                                  <div key={cat} className="glass-card rounded-lg p-3 space-y-1">
+                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cat}</span>
+                                    <div className={`text-lg font-mono font-bold ${s.breakdown[cat] > 0 ? "text-primary" : s.breakdown[cat] < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                                      {s.breakdown[cat] > 0 ? "+" : ""}{s.breakdown[cat]}
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </>
-              );
-            })}
+                              <div className="space-y-1.5">
+                                {s.reasons.map((r, i) => (
+                                  <div key={i} className="flex items-center gap-2 text-xs">
+                                    <span className={`font-mono font-bold w-8 text-right ${r.points > 0 ? "text-primary" : r.points < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                                      {r.points > 0 ? "+" : ""}{r.points}
+                                    </span>
+                                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-border/50">{r.factor}</Badge>
+                                    <span className="text-muted-foreground">{r.description}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </div>
+                  );
+                })}
           </TableBody>
         </Table>
       </div>
