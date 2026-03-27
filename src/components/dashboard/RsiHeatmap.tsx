@@ -66,7 +66,7 @@ export function RsiHeatmap({ symbols }: RsiHeatmapProps) {
             </tr>
           </thead>
           <tbody>
-            {symbols.map(symbol => (
+            {symbols.filter(s => heatmap?.[s] && Object.keys(heatmap[s]).length > 0).map(symbol => (
               <tr key={symbol} className="group hover:bg-white/5 transition-colors rounded-lg overflow-hidden">
                 <td className="p-1">
                   <span className="text-xs font-bold font-mono text-foreground group-hover:text-primary transition-colors">
@@ -78,7 +78,7 @@ export function RsiHeatmap({ symbols }: RsiHeatmapProps) {
                   const displayVal = val !== undefined ? Math.round(val) : "-";
                   
                   return (
-                    <td key={tf} className="p-0.5">
+                    <td className="p-0.5" key={`${symbol}-${tf}`}>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>

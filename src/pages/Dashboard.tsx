@@ -38,17 +38,20 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
 
   const heatmapSymbols = useMemo(() => {
     if (!markets) return [];
-    return markets
-      .slice(0, 15)
+    const syms = markets
+      .slice(0, 20) // Get more to account for potential binance mismatches
       .map(m => m.symbol?.toUpperCase())
       .filter(s => s && s.trim() !== "");
+    
+    // Deduplicate
+    return Array.from(new Set(syms)).slice(0, 15);
   }, [markets]);
 
   const selectedCoinForAI = enriched[0];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
+      <div className="space-y-8 max-w-[1600px] mx-auto pb-20 px-4 md:px-6">
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-4">
