@@ -5,9 +5,9 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2 font-display font-bold text-foreground">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 border border-primary/20">
-              <span className="text-primary font-bold text-xs">C</span>
+              <span className="text-primary font-bold text-xs">D</span>
             </div>
-            CryptoEdge
+            Data Oracle <span className="text-primary">Hub</span>
           </div>
 
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -17,7 +17,7 @@ export function Footer() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            © 2026 CryptoEdge. Todos os direitos reservados.
+            © 2026 Data Oracle Hub. Todos os direitos reservados.
           </p>
         </div>
       </div>

@@ -36,9 +36,9 @@ export function Navbar() {
           className="flex items-center gap-2 font-display text-xl font-bold text-foreground transition-all duration-200 hover:drop-shadow-[0_0_12px_hsl(var(--primary)/0.5)]"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <span className="text-primary font-bold text-sm">C</span>
+            <span className="text-primary font-bold text-sm">D</span>
           </div>
-          CryptoEdge
+          Data Oracle <span className="text-primary">Hub</span>
         </a>
 
         {/* Desktop links */}

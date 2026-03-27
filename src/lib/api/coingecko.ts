@@ -165,3 +165,71 @@ export function calculateSMA(prices: number[], period: number): number {
   const slice = prices.slice(-period);
   return slice.reduce((a, b) => a + b, 0) / period;
 }
+
+// Exponential Moving Average
+export function calculateEMA(prices: number[], period: number): number {
+  if (prices.length < period) return calculateSMA(prices, period);
+  const k = 2 / (period + 1);
+  let ema = calculateSMA(prices.slice(0, period), period);
+  for (let i = period; i < prices.length; i++) {
+    ema = prices[i] * k + ema * (1 - k);
+  }
+  return ema;
+}
+
+// MACD (Moving Average Convergence Divergence)
+export function calculateMACD(prices: number[]): { macd: number; signal: number; histogram: number } {
+  if (prices.length < 26 + 9) return { macd: 0, signal: 0, histogram: 0 };
+  
+  // Calculate MACD Line = 12-period EMA - 26-period EMA
+  // To get the Signal Line (9-period EMA of MACD Line), we need multiple MACD points
+  const macdPoints: number[] = [];
+  for (let i = 26; i <= prices.length; i++) {
+    const slice = prices.slice(0, i);
+    const ema12 = calculateEMA(slice, 12);
+    const ema26 = calculateEMA(slice, 26);
+    macdPoints.push(ema12 - ema26);
+  }
+  
+  const macd = macdPoints[macdPoints.length - 1];
+  const signal = calculateEMA(macdPoints, 9);
+  const histogram = macd - signal;
+  
+  return { macd, signal, histogram };
+}
+
+// Bollinger Bands
+export function calculateBollingerBands(prices: number[], period = 20, stdDev = 2): { middle: number; upper: number; lower: number } {
+  if (prices.length < period) return { middle: 0, upper: 0, lower: 0 };
+  
+  const slice = prices.slice(-period);
+  const middle = calculateSMA(slice, period);
+  
+  const squareDiffs = slice.map((p) => Math.pow(p - middle, 2));
+  const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / period;
+  const standardDeviation = Math.sqrt(avgSquareDiff);
+  
+  return {
+    middle,
+    upper: middle + standardDeviation * stdDev,
+    lower: middle - standardDeviation * stdDev,
+  };
+}
+
+// StochRSI
+export function calculateStochRSI(prices: number[], period = 14): number {
+  if (prices.length < period * 2) return 50;
+  
+  const rsiValues: number[] = [];
+  for (let i = period; i <= prices.length; i++) {
+    rsiValues.push(calculateRSI(prices.slice(0, i), period));
+  }
+  
+  const latestRsi = rsiValues[rsiValues.length - 1];
+  const recentRsi = rsiValues.slice(-period);
+  const minRsi = Math.min(...recentRsi);
+  const maxRsi = Math.max(...recentRsi);
+  
+  if (maxRsi === minRsi) return 50;
+  return ((latestRsi - minRsi) / (maxRsi - minRsi)) * 100;
+}

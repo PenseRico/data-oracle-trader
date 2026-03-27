@@ -185,8 +185,8 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                             <Info className="h-3 w-3" />
                             Por que {s.label}? — Análise de confluência
                           </div>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {(["momentum", "trend", "volume", "sentiment"] as const).map((cat) => (
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            {(["momentum", "trend", "volatility", "volume", "sentiment"] as const).map((cat) => (
                               <div key={cat} className="glass-card rounded-lg p-3 space-y-1">
                                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cat}</span>
                                 <div className={`text-lg font-mono font-bold ${s.breakdown[cat] > 0 ? "text-primary" : s.breakdown[cat] < 0 ? "text-destructive" : "text-muted-foreground"}`}>

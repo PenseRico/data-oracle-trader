@@ -1,4 +1,11 @@
-import { CoinGeckoMarket, calculateRSI, calculateSMA } from "./api/coingecko";
+import { 
+  CoinGeckoMarket, 
+  calculateRSI, 
+  calculateSMA, 
+  calculateMACD, 
+  calculateBollingerBands, 
+  calculateStochRSI 
+} from "./api/coingecko";
 
 export interface SignalScore {
   total: number;
@@ -13,7 +20,7 @@ export interface SignalReason {
   factor: string;
   description: string;
   points: number;
-  category: "momentum" | "trend" | "volume" | "sentiment";
+  category: "momentum" | "trend" | "volume" | "sentiment" | "volatility";
 }
 
 export interface ScoreBreakdown {
@@ -21,10 +28,14 @@ export interface ScoreBreakdown {
   trend: number;
   volume: number;
   sentiment: number;
+  volatility: number;
 }
 
 export interface EnrichedCoin extends CoinGeckoMarket {
   rsi: number;
+  stochRsi: number;
+  macd: { macd: number; signal: number; histogram: number };
+  bb: { middle: number; upper: number; lower: number };
   ma10: number;
   ma20: number;
   ma80: number;
@@ -46,6 +57,9 @@ export function calculateSignalScore(
 ): SignalScore {
   const prices = coin.sparkline_in_7d?.price || [];
   const rsi = calculateRSI(prices);
+  const stochRsi = calculateStochRSI(prices);
+  const macd = calculateMACD(prices);
+  const bb = calculateBollingerBands(prices);
   const ma10 = calculateSMA(prices, 10);
   const ma20 = calculateSMA(prices, 20);
   const ma80 = calculateSMA(prices, 80);
@@ -56,8 +70,10 @@ export function calculateSignalScore(
   let trend = 0;
   let volume = 0;
   let sentiment = 0;
+  let volatility = 0;
 
-  // === MOMENTUM (RSI) ===
+  // === MOMENTUM (RSI + StochRSI + MACD) ===
+  // RSI
   if (rsi <= 25) {
     momentum += 3;
     reasons.push({ factor: "RSI", description: `RSI extremamente baixo (${Math.round(rsi)}) — sobrevendido forte`, points: 3, category: "momentum" });
@@ -70,6 +86,24 @@ export function calculateSignalScore(
   } else if (rsi >= 70) {
     momentum -= 2;
     reasons.push({ factor: "RSI", description: `RSI alto (${Math.round(rsi)}) — sobrecomprado`, points: -2, category: "momentum" });
+  }
+
+  // StochRSI
+  if (stochRsi <= 15) {
+    momentum += 2;
+    reasons.push({ factor: "StochRSI", description: `StochRSI no fundo (${Math.round(stochRsi)}) — ignição bullish`, points: 2, category: "momentum" });
+  } else if (stochRsi >= 85) {
+    momentum -= 2;
+    reasons.push({ factor: "StochRSI", description: `StochRSI no topo (${Math.round(stochRsi)}) — exaustão de compra`, points: -2, category: "momentum" });
+  }
+
+  // MACD
+  if (macd.histogram > 0 && macd.macd > macd.signal) {
+    momentum += 2;
+    reasons.push({ factor: "MACD", description: "Histograma positivo + Cruzamento bullish", points: 2, category: "momentum" });
+  } else if (macd.histogram < 0 && macd.macd < macd.signal) {
+    momentum -= 2;
+    reasons.push({ factor: "MACD", description: "Histograma negativo + Cruzamento bearish", points: -2, category: "momentum" });
   }
 
   // === TREND (Moving Averages) ===
@@ -97,8 +131,16 @@ export function calculateSignalScore(
     reasons.push({ factor: "Tendência", description: "MA20 < MA80 — tendência de baixa de longo prazo", points: -1, category: "trend" });
   }
 
+  // === VOLATILITY (Bollinger Bands) ===
+  if (currentPrice >= bb.upper) {
+    volatility -= 2;
+    reasons.push({ factor: "Bollinger", description: "Preço tocando banda superior — resistência", points: -2, category: "volatility" });
+  } else if (currentPrice <= bb.lower) {
+    volatility += 2;
+    reasons.push({ factor: "Bollinger", description: "Preço tocando banda inferior — suporte", points: 2, category: "volatility" });
+  }
+
   // === VOLUME ===
-  // Compare volume to average (using volume/market_cap ratio as proxy)
   const volumeRatio = coin.total_volume / coin.market_cap;
   if (volumeRatio > 0.15) {
     volume += 3;
@@ -128,24 +170,13 @@ export function calculateSignalScore(
     }
   }
 
-  // Price change momentum bonus
-  const change24 = coin.price_change_percentage_24h_in_currency ?? 0;
-  const change7d = coin.price_change_percentage_7d_in_currency ?? 0;
-  if (change24 > 5 && change7d > 10) {
-    momentum += 1;
-    reasons.push({ factor: "Momentum", description: "Forte alta em 24h e 7d — momentum positivo", points: 1, category: "momentum" });
-  } else if (change24 < -5 && change7d < -10 && rsi < 40) {
-    momentum += 1;
-    reasons.push({ factor: "Reversão", description: "Forte queda + RSI baixo — possível reversão", points: 1, category: "momentum" });
-  }
-
-  const total = momentum + trend + volume + sentiment;
+  const total = momentum + trend + volume + sentiment + volatility;
 
   return {
     total,
     ...classifyScore(total),
     reasons: reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points)),
-    breakdown: { momentum, trend, volume, sentiment },
+    breakdown: { momentum, trend, volume, sentiment, volatility },
   };
 }
 
@@ -158,6 +189,9 @@ export function enrichCoins(
     return {
       ...coin,
       rsi: calculateRSI(prices),
+      stochRsi: calculateStochRSI(prices),
+      macd: calculateMACD(prices),
+      bb: calculateBollingerBands(prices),
       ma10: calculateSMA(prices, 10),
       ma20: calculateSMA(prices, 20),
       ma80: calculateSMA(prices, 80),
