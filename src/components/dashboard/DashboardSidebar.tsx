@@ -1,7 +1,7 @@
 import {
   BarChart3, TrendingUp, TrendingDown, Activity, Filter,
   LayoutDashboard, LineChart, Newspaper, MessageSquare,
-  Zap, Target, ArrowLeftRight, BookOpen, Monitor, User,
+  Zap, Target, ArrowLeftRight, BookOpen, Monitor, User, Calculator,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -15,6 +15,7 @@ const mainItems = [
   { title: "Command Center", url: "/dashboard", icon: LayoutDashboard },
   { title: "Sinais Detalhados", url: "/dashboard/signals", icon: Zap },
   { title: "Liquidity Magnet", url: "/dashboard/liquidity", icon: Target },
+  { title: "Leverage Optimizer", url: "/dashboard/leverage", icon: Calculator },
   { title: "Mercado Global", url: "/dashboard/market", icon: BarChart3 },
 ];
 
@@ -82,7 +83,7 @@ export function DashboardSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
         {!collapsed && (
-          <div className="text-[10px] text-muted-foreground/50 text-center uppercase tracking-widest font-mono">v0.5.0 Alpha</div>
+          <div className="text-[10px] text-muted-foreground/50 text-center uppercase tracking-widest font-mono">v0.6.0 Alpha</div>
         )}
       </SidebarFooter>
     </Sidebar>
