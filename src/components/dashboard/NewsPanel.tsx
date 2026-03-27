@@ -29,8 +29,7 @@ export function NewsPanel() {
     <div className="glass-card p-5 rounded-2xl border-white/5 bg-black/40 shadow-2xl relative overflow-hidden group">
       <div className="flex items-center justify-between mb-5">
          <div className="flex items-center gap-2">
-            <Newspaper className="h-4 w-4 text-primary" />
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Live Institutional Feed</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Feed Institucional (Tempo Real)</span>
          </div>
       </div>
 

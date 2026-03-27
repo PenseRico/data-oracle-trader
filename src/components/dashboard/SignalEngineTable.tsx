@@ -85,8 +85,8 @@ export function SignalEngineTable({ coins, title, isLoading, onSelect }: SignalE
     <div className="space-y-4">
       {title && <h2 className="font-display font-bold text-lg">{title}</h2>}
 
-      <div className="glass-card rounded-lg overflow-hidden">
-        <Table>
+      <div className="glass-card rounded-lg overflow-x-auto scrollbar-hide">
+        <Table className="min-w-[800px]">
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
               <TableHead className="w-10 text-xs">#</TableHead>

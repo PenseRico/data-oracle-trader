@@ -76,8 +76,8 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
           <Command className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 className="font-display font-bold text-lg tracking-tight">O.R.A Agent (V3)</h2>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Oracle Resource Analyst • Institutional Mastery</p>
+          <h2 className="font-display font-bold text-lg tracking-tight">Agente O.R.A (V8)</h2>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">Oracle Resource Analyst • Vernacular Mastery</p>
         </div>
       </div>
 
@@ -109,14 +109,14 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-[10px] text-muted-foreground uppercase mb-1">Bias de Mercado</div>
+              <div className="text-[10px] text-muted-foreground uppercase mb-1">Tendência Dominante</div>
               <div className={`text-lg font-bold flex items-center gap-2 ${report.bias.includes("Bullish") ? "text-cyan-400" : "text-red-400"}`}>
                 {report.bias.includes("Bullish") ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                {report.bias}
+                {report.bias.replace("Strong Bullish", "Compra Institucional").replace("Strong Bearish", "Distribuição Forte").replace("Bullish", "Alta Técnica").replace("Bearish", "Baixa Técnica").replace("Institutional", "Institucional")}
               </div>
             </div>
             <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-[10px] text-muted-foreground uppercase mb-1">Confiança do Sinal</div>
+              <div className="text-[10px] text-muted-foreground uppercase mb-1">Grau de Assertividade</div>
               <div className="text-lg font-bold text-primary font-mono">{report.confidence}%</div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function AIOraAgent({ coinId, symbol, price, indicators }: AIOraAgentProp
              <div className="flex gap-2 items-start">
                <Zap className="h-4 w-4 text-primary shrink-0 mt-1" />
                <p className="text-[11px] leading-relaxed text-muted-foreground italic">
-                 "{report.insight}"
+                 "Oráculo: {report.insight}"
                </p>
              </div>
           </ScrollArea>

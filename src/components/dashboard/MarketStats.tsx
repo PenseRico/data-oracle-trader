@@ -13,7 +13,7 @@ export function MarketStats() {
 
   const stats = [
     {
-      label: "Market Cap Total",
+      label: "Capitalização Total",
       value: gLoading ? "..." : formatMarketCap(global?.data?.total_market_cap?.usd || 0),
       change: gLoading
         ? ""
@@ -22,30 +22,30 @@ export function MarketStats() {
       icon: DollarSign,
     },
     {
-      label: "Volume 24h",
+      label: "Volume (24h)",
       value: gLoading ? "..." : formatMarketCap(global?.data?.total_volume?.usd || 0),
       change: "",
       positive: true,
       icon: Activity,
     },
     {
-      label: "BTC Dominância",
+      label: "Dominância BTC",
       value: gLoading ? "..." : `${(global?.data?.market_cap_percentage?.btc ?? 0).toFixed(1)}%`,
       change: "",
       positive: true,
       icon: TrendingUp,
     },
     {
-      label: "Fear & Greed",
+      label: "Medo & Ganância",
       value: fgLoading ? "..." : fgValue,
-      change: fgLoading ? "" : fgLabel,
+      change: fgLoading ? "" : fgLabel.replace("Fear", "Medo").replace("Extreme Greed", "Ganância Extrema").replace("Greed", "Ganância").replace("Neutral", "Neutro"),
       positive: fgPositive,
       icon: Gauge,
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map((stat) => (
         <div key={stat.label} className="glass-card rounded-lg p-4 space-y-2">
           <div className="flex items-center justify-between">

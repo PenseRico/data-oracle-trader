@@ -14,9 +14,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // MOCK FOR TESTING: Always logged in
+  const [user, setUser] = useState<User | null>({ email: "admin@oracle.hub", id: "mock-v8-dev" } as any);
+  const [session, setSession] = useState<Session | null>({ user: { email: "admin@oracle.hub" } } as any);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

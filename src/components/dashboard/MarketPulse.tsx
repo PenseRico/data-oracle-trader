@@ -61,12 +61,12 @@ export function MarketPulse() {
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1.5fr_1fr] divide-x divide-white/10">
         
         {/* Macro & TradFi Segment */}
-        <div className="flex items-center">
-          <MacroItem label="BTC DOM" value={`${btcDominance}%`} icon={PieChart} color="text-orange-400" />
-          <MacroItem label="ETH DOM" value={`${ethDominance}%`} icon={Activity} color="text-blue-400" />
-          <MacroItem label="S&P 500" value="5,241" change={0.84} icon={Globe2} color="text-cyan-400" />
-          <MacroItem label="NASDAQ" value="16,428" change={1.22} icon={TrendingUp} color="text-primary" />
-          <MacroItem label="GOLD (XAU)" value="$2,174" change={-0.12} icon={BarChart3} color="text-yellow-500" />
+        <div className="flex flex-wrap items-center">
+          <MacroItem label="DOM BTC" value={`${btcDominance}%`} icon={PieChart} color="text-orange-400" />
+          <MacroItem label="DOM ETH" value={`${ethDominance}%`} icon={Activity} color="text-blue-400" />
+          <MacroItem label="S&P 500" value="5.241" change={0.84} icon={Globe2} color="text-cyan-400" />
+          <MacroItem label="NASDAQ" value="16.428" change={1.22} icon={TrendingUp} color="text-primary" />
+          <MacroItem label="OURO (XAU)" value="$2.174" change={-0.12} icon={BarChart3} color="text-yellow-500" />
           <MacroItem label="VIX" value="13.1" change={-4.5} icon={Waves} color="text-red-400" />
         </div>
 
@@ -75,10 +75,10 @@ export function MarketPulse() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
                <Zap className="h-3 w-3 text-yellow-500 fill-yellow-500/20" />
-               <span className="text-[9px] font-black uppercase tracking-[0.2em]">Sentiment Matrix</span>
+               <span className="text-[9px] font-black uppercase tracking-[0.2em]">Sentimento do Mercado</span>
             </div>
             <Badge variant="outline" className={`text-[8px] h-4 px-1 ${getFgColor(fgValue)} text-black border-none font-black uppercase`}>
-              {fgLabel}
+              {fgLabel.replace("Fear", "Medo").replace("Extreme Greed", "Ganância Extrema").replace("Greed", "Ganância").replace("Neutral", "Neutro")}
             </Badge>
           </div>
           <div className="relative h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
@@ -89,8 +89,8 @@ export function MarketPulse() {
              <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/20 -translate-x-1/2" />
           </div>
           <div className="flex justify-between text-[8px] font-bold text-muted-foreground/40 uppercase tracking-tighter">
-             <span>Extreme Fear</span>
-             <span>Extreme Greed</span>
+             <span>Medo Extremo</span>
+             <span>Ganância Extrema</span>
           </div>
         </div>
 

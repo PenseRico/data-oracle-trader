@@ -64,11 +64,11 @@ export interface EnrichedCoin extends CoinGeckoMarket {
 }
 
 function classifyScore(score: number): Pick<SignalScore, "classification" | "label" | "emoji"> {
-  if (score >= 8) return { classification: "strong_buy", label: "COMPRA FORTE", emoji: "🟢" };
-  if (score >= 5) return { classification: "buy", label: "COMPRA", emoji: "🟡" };
+  if (score >= 8) return { classification: "strong_buy", label: "COMPRA INSTITUCIONAL", emoji: "💎" };
+  if (score >= 5) return { classification: "buy", label: "ALTA TÉCNICA", emoji: "📈" };
   if (score >= 3) return { classification: "neutral", label: "NEUTRO", emoji: "⚪" };
-  if (score >= 1) return { classification: "sell", label: "VENDA", emoji: "🔴" };
-  return { classification: "strong_sell", label: "VENDA FORTE", emoji: "🔴" };
+  if (score >= 1) return { classification: "sell", label: "BAIXA TÉCNICA", emoji: "📉" };
+  return { classification: "strong_sell", label: "DISTRIBUIÇÃO FORTE", emoji: "🔥" };
 }
 
 export function calculateSignalScore(

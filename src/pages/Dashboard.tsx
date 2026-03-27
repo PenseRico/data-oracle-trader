@@ -26,7 +26,7 @@ interface DashboardProps {
 export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
   const { data: markets, isLoading } = useMarkets(1, 50);
   const { data: fg } = useFearGreed();
-  const [activeTab, setActiveTab ] = useState<"overview" | "signals" | "rsi">(initialTab);
+  const [activeTab, setActiveTab ] = useState<"overview" | "signals" | "rsi">(initialTab === "signals" ? "signals" : "overview");
   const [selectedSymbol, setSelectedSymbol] = useState<string>("BTCUSDT");
 
   // Sync state with prop in case of navigation
@@ -77,9 +77,9 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                    <Zap className="h-5 w-5 text-primary fill-primary/20 animate-pulse" />
-                   <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary">Oracle Snatch Intelligence</h2>
+                   <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary">Inteligência de Captura (Snatch)</h2>
                 </div>
-                <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 text-primary">REAL-TIME MONITOR ACTIVE</Badge>
+                <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 text-primary uppercase">Monitoramento em Tempo Real Ativo</Badge>
               </div>
               <SnatchAlertList />
             </div>
@@ -98,16 +98,20 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                   <div className="space-y-4">
                      <div className="flex items-center gap-2 px-1">
                         <Activity className="h-4 w-4 text-primary/60" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Momentum Vector (RSI Heatmap)</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Vetor de Momentum (Heatmap RSI)</span>
                      </div>
-                     <RsiHeatmap symbols={heatmapSymbols} />
+                     <div className="overflow-x-auto pb-2 scrollbar-hide">
+                        <RsiHeatmap symbols={heatmapSymbols} />
+                     </div>
                   </div>
                   <div className="space-y-4">
                      <div className="flex items-center gap-2 px-1">
                         <Target className="h-4 w-4 text-primary/60" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Liquidity Snatch Clusters</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Clusters de Liquidez (Snatch)</span>
                      </div>
-                     <LiquiditySnatchMap />
+                     <div className="overflow-x-auto pb-2 scrollbar-hide">
+                        <LiquiditySnatchMap />
+                     </div>
                   </div>
                 </div>
 
@@ -126,7 +130,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 px-1">
                     <LineChart className="h-4 w-4 text-primary" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic underline decoration-primary/30">Institutional Analysis Terminal — {selectedSymbol}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic underline decoration-primary/30">Estação de Análise Técnica — {selectedSymbol}</span>
                   </div>
                   <TradingViewChart symbol={selectedSymbol} />
                 </div>
@@ -134,14 +138,16 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 px-1">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest">Ativos em Confluência Crítica</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Ativos em Confluência de Elite</h3>
                   </div>
-                  <SignalEngineTable
-                    coins={enriched.filter(c => c.signal.confluence === "High" || c.signal.isGoldenZone).slice(0, 10)}
-                    title=""
-                    isLoading={isLoading}
-                    onSelect={(s) => setSelectedSymbol(`${s}USDT`)}
-                  />
+                  <div className="overflow-x-auto pb-2 scrollbar-hide">
+                    <SignalEngineTable
+                      coins={enriched.filter(c => c.signal.confluence === "High" || c.signal.isGoldenZone).slice(0, 10)}
+                      title=""
+                      isLoading={isLoading}
+                      onSelect={(s) => setSelectedSymbol(`${s}USDT`)}
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -151,7 +157,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <List className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest italic">Análise Estratégica Completa</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest italic">Análise Estratégica de Elite</h3>
                   </div>
                 </div>
                 <SignalEngineTable
@@ -204,7 +210,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
               </div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-glow" />
-                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Master Intelligence V3</div>
+                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Mesa de Operações V8</div>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
                 O Core "The Oracle Protocol" está integrando agora o **Mapa de Calor Temporal**. Busque as "Zonas Magnéticas" onde a liquidez massiva encontra o RSI inferior a 10 para entradas de altíssima precisão.

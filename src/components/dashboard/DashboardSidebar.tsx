@@ -12,26 +12,26 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainItems = [
-  { title: "Command Center", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Sinais Detalhados", url: "/dashboard/signals", icon: Zap },
-  { title: "Liquidity Magnet", url: "/dashboard/liquidity", icon: Target },
-  { title: "Leverage Optimizer", url: "/dashboard/leverage", icon: Calculator },
-  { title: "Mercado Global", url: "/dashboard/market", icon: BarChart3 },
+  { title: "Terminal de Comando", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Radar Elite", url: "/dashboard/signals", icon: Zap },
+  { title: "Rastro de Liquidez", url: "/dashboard/liquidity", icon: Target },
+  { title: "Simulador de Risco", url: "/dashboard/leverage", icon: Calculator },
+  { title: "Panorama de Mercado", url: "/dashboard/market", icon: BarChart3 },
 ];
 
 const filterItems = [
-  { title: "RSI Heatmap Pro", url: "/dashboard/rsi", icon: Activity },
-  { title: "Setup 10-85 Buy", url: "/dashboard/buy-signals", icon: TrendingUp },
-  { title: "Setup Exhaustion", url: "/dashboard/sell-signals", icon: TrendingDown },
+  { title: "Mapa de Calor Pro", url: "/dashboard/rsi", icon: Activity },
+  { title: "Setup Ignição (Buy)", url: "/dashboard/buy-signals", icon: TrendingUp },
+  { title: "Setup Exaustão (Sell)", url: "/dashboard/sell-signals", icon: TrendingDown },
 ];
 
 const toolItems = [
   { title: "Alertas", url: "/dashboard/alerts", icon: Zap },
-  { title: "Setups", url: "/dashboard/setups", icon: Target },
-  { title: "Notícias", url: "/dashboard/news", icon: Newspaper },
-  { title: "Comunidade", url: "/dashboard/community", icon: MessageSquare },
-  { title: "Academy", url: "/dashboard/academy", icon: BookOpen },
-  { title: "Perfil", url: "/dashboard/profile", icon: User },
+  { title: "Configuração Setup", url: "/dashboard/setups", icon: Target },
+  { title: "Terminal Notícias", url: "/dashboard/news", icon: Newspaper },
+  { title: "Mesa de Operações", url: "/dashboard/community", icon: MessageSquare },
+  { title: "Formação Academy", url: "/dashboard/academy", icon: BookOpen },
+  { title: "Perfil Analista", url: "/dashboard/profile", icon: User },
 ];
 
 export function DashboardSidebar() {

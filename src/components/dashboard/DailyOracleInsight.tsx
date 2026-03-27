@@ -45,10 +45,10 @@ export function DailyOracleInsight({ signalsCount, marketSentiment, topSignal }:
                   <Zap className="h-6 w-6 text-black" />
                </div>
                <div>
-                  <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary italic">Daily Oracle Insight</h2>
+                  <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary italic">Veredito Diário do Oráculo</h2>
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase font-mono">
                      <Clock className="h-3 w-3" />
-                     Data: {dateStr} • Oracle V5.0
+                     Data: {dateStr} • Oracle V8.0
                   </div>
                </div>
             </div>
@@ -74,37 +74,37 @@ export function DailyOracleInsight({ signalsCount, marketSentiment, topSignal }:
             </div>
          </div>
 
-         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
             <div className="glass-card p-4 rounded-xl border-white/10 bg-black/40 space-y-3 shadow-2xl">
                <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-primary" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Oportunidade Sniper</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-glow-dm">Oportunidade Sniper</span>
                </div>
                <div className="flex items-end justify-between">
-                  <div className="text-2xl font-black font-mono tracking-tighter text-glow-sm">{topSignal?.symbol || "N/A"}</div>
-                  <Badge variant="outline" className="bg-primary/20 text-primary text-[10px] border-primary/30 mb-1">CONFLUENCE: {topSignal?.confluence || "---"}</Badge>
+                  <div className="text-2xl font-black font-mono tracking-tighter text-glow-sm">{topSignal?.symbol || "BUSCANDO..."}</div>
+                  <Badge variant="outline" className="bg-primary/20 text-primary text-[10px] border-primary/30 mb-1">CONFLUÊNCIA: {topSignal?.confluence || "MTF"}</Badge>
                </div>
                <div className="text-[10px] text-muted-foreground italic border-t border-white/5 pt-2">
-                  Ativo atingiu o **Golden Pocket (0.618)** + RSI em exaustão. Configuração 'Ouro Mastigado'.
+                  Ativo atingiu o **Golden Pocket (0.618)** + RSI em exaustão. Configuração 'Ouro'.
                </div>
             </div>
 
             <div className="glass-card p-4 rounded-xl border-white/5 bg-white/[0.02] flex flex-col justify-center gap-3">
                <div className="flex items-center gap-3">
                   <ShieldCheck className="h-4 w-4 text-green-500/60" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Risk Guard Mode</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Proteção de Capital</span>
                </div>
                <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] font-mono">
-                     <span className="text-muted-foreground">Stop Loss Protection</span>
-                     <span className="text-primary font-bold">ACTIVE</span>
+                     <span className="text-muted-foreground italic">Stop Loss Ativo</span>
+                     <span className="text-primary font-bold">MONITORANDO</span>
                   </div>
                   <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                      <div className="h-full bg-green-500 w-3/4 shadow-glow-sm" />
                   </div>
                </div>
             </div>
-         </div>
+          </div>
       </div>
 
       <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-4 opacity-50">
