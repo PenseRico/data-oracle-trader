@@ -18,6 +18,11 @@ export function useGlobalLiquidations(limit = 100) {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
+    // Initial fetch to get the historical data immediately
+    fetchRecentLiquidations().then(recent => {
+      setLiquidations(recent.slice(0, limit));
+    });
+
     const ws = new WebSocket(`${BINANCE_FUTURES_WS}/!forceOrder@arr`);
     wsRef.current = ws;
 

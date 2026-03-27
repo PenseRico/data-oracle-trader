@@ -12,17 +12,16 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainItems = [
-  { title: "Signal Engine", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Mercado", url: "/dashboard/market", icon: BarChart3 },
+  { title: "Command Center", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Sinais Detalhados", url: "/dashboard/signals", icon: Zap },
+  { title: "Mercado Global", url: "/dashboard/market", icon: BarChart3 },
   { title: "Monitoramento", url: "/dashboard/monitor", icon: Monitor },
-  { title: "Gráficos", url: "/dashboard/charts", icon: LineChart },
 ];
 
 const filterItems = [
-  { title: "Filtros RSI", url: "/dashboard/rsi-filters", icon: Activity },
-  { title: "Oportunidades de Compra", url: "/dashboard/buy-signals", icon: TrendingUp },
-  { title: "Sinais de Venda", url: "/dashboard/sell-signals", icon: TrendingDown },
-  { title: "Médias Móveis", url: "/dashboard/moving-averages", icon: ArrowLeftRight },
+  { title: "RSI Heatmap Pro", url: "/dashboard/rsi", icon: Activity },
+  { title: "Setup 10-85 Buy", url: "/dashboard/buy-signals", icon: TrendingUp },
+  { title: "Setup Exhaustion", url: "/dashboard/sell-signals", icon: TrendingDown },
 ];
 
 const toolItems = [

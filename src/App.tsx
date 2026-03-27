@@ -38,6 +38,8 @@ const App = () => (
             
             {/* Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />
+            <Route path="/dashboard/signals" element={<ProtectedDashboard><Dashboard initialTab="signals" /></ProtectedDashboard>} />
+            <Route path="/dashboard/rsi" element={<ProtectedDashboard><Dashboard initialTab="overview" /></ProtectedDashboard>} />
             <Route path="/dashboard/market" element={<ProtectedDashboard><MarketPage /></ProtectedDashboard>} />
             <Route path="/dashboard/monitor" element={<ProtectedDashboard><MonitorPage /></ProtectedDashboard>} />
             <Route path="/dashboard/charts" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />

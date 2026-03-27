@@ -10,14 +10,24 @@ import { SnatchAlertList } from "@/components/dashboard/SnatchAlertList";
 import { LiquiditySnatchMap } from "@/components/dashboard/LiquiditySnatchMap";
 import { useMarkets, useFearGreed } from "@/lib/api/coingecko";
 import { enrichCoins } from "@/lib/signalEngine";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutGrid, List, Sparkles, Coins, Zap, Target } from "lucide-react";
+import { LayoutGrid, List, Sparkles, Coins, Zap, Target, Activity } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-export default function Dashboard() {
+interface DashboardProps {
+  initialTab?: "overview" | "signals";
+}
+
+export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
   const { data: markets, isLoading } = useMarkets(1, 50);
   const { data: fg } = useFearGreed();
-  const [activeTab, setActiveTab ] = useState("overview");
+  const [activeTab, setActiveTab ] = useState<"overview" | "signals" | "rsi">(initialTab);
+
+  // Sync state with prop in case of navigation
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const fearGreedValue = fg?.data?.[0]?.value ? parseInt(fg.data[0].value) : undefined;
 
@@ -28,7 +38,10 @@ export default function Dashboard() {
 
   const heatmapSymbols = useMemo(() => {
     if (!markets) return [];
-    return markets.slice(0, 15).map(m => m.symbol.toUpperCase());
+    return markets
+      .slice(0, 15)
+      .map(m => m.symbol?.toUpperCase())
+      .filter(s => s && s.trim() !== "");
   }, [markets]);
 
   const selectedCoinForAI = enriched[0];
@@ -36,48 +49,44 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="font-display font-black text-3xl text-glow tracking-tighter uppercase italic">
-              Oracle <span className="text-primary">Command</span>
-            </h1>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-mono flex items-center gap-2">
-               <span className="h-1 w-1 bg-primary rounded-full animate-pulse" />
-               High Frequency AI & Liquidity Engine • V2.5 Gold
-            </p>
+        {activeTab === "overview" && (
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                   <Zap className="h-5 w-5 text-primary fill-primary/20 animate-pulse" />
+                   <h2 className="text-sm font-black uppercase tracking-[0.3em] text-primary">Oracle Snatch Intelligence</h2>
+                </div>
+                <Badge variant="outline" className="text-[9px] bg-primary/5 border-primary/20 text-primary">REAL-TIME MONITOR ACTIVE</Badge>
+              </div>
+              <SnatchAlertList />
+            </div>
           </div>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
-            <TabsList className="bg-black/40 border border-white/5 p-1 h-10">
-              <TabsTrigger value="overview" className="gap-2 text-[10px] uppercase font-bold tracking-widest">
-                <LayoutGrid className="h-3 w-3" /> Dashboard
-              </TabsTrigger>
-              <TabsTrigger value="signals" className="gap-2 text-[10px] uppercase font-bold tracking-widest">
-                <List className="h-3 w-3" /> Sinais Detalhados
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        )}
 
-        {/* Global Snatch Alerts - "THE GOLD" */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-             <Zap className="h-4 w-4 text-primary fill-primary/20" />
-             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Oracle Snatch Entry Alerts</h2>
-          </div>
-          <SnatchAlertList />
+        <div className="glass-card rounded-xl p-4 border-primary/10">
+          <MarketStats />
         </div>
-
-        <MarketStats />
         
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
           <div className="space-y-6">
-            {activeTab === "overview" ? (
+            {activeTab === "overview" && (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RsiHeatmap symbols={heatmapSymbols} />
-                  <LiquiditySnatchMap />
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-2 px-1">
+                        <Activity className="h-4 w-4 text-primary/60" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Momentum Vector (RSI Heatmap)</span>
+                     </div>
+                     <RsiHeatmap symbols={heatmapSymbols} />
+                  </div>
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-2 px-1">
+                        <Target className="h-4 w-4 text-primary/60" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Liquidity Snatch Clusters</span>
+                     </div>
+                     <LiquiditySnatchMap />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -93,9 +102,9 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-1">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    <h3 className="text-sm font-bold uppercase tracking-widest">Moedas em Destaque (Confluência Ouro)</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Ativos em Confluência Crítica</h3>
                   </div>
                   <SignalEngineTable
                     coins={enriched.filter(c => c.signal.confluence === "High" || c.signal.isGoldenZone).slice(0, 10)}
@@ -104,30 +113,73 @@ export default function Dashboard() {
                   />
                 </div>
               </>
-            ) : (
-              <SignalEngineTable
-                coins={enriched}
-                title="Sinais Estratégicos — Multi-Fatorial"
-                isLoading={isLoading}
-              />
+            )}
+
+            {activeTab === "signals" && (
+              <div className="space-y-4 animate-fade-up">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2">
+                    <List className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-bold uppercase tracking-widest italic">Análise Estratégica Completa</h3>
+                  </div>
+                </div>
+                <SignalEngineTable
+                  coins={enriched}
+                  title=""
+                  isLoading={isLoading}
+                />
+              </div>
+            )}
+
+            {activeTab === "rsi" && (
+              <div className="space-y-6 animate-fade-up">
+                <div className="flex items-center gap-2 px-1">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-bold uppercase tracking-widest">Heatmap Pro Detalhado</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-6">
+                  <RsiHeatmap symbols={heatmapSymbols} />
+                  <div className="glass-card p-6 border-primary/20 rounded-xl bg-black/40">
+                     <div className="text-[10px] text-primary font-black uppercase tracking-widest mb-4">Metodologia RSI Master</div>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-[11px] text-muted-foreground">
+                        <div className="space-y-2 border-l border-white/5 pl-4">
+                           <div className="text-cyan-400 font-bold uppercase tracking-tighter">Golden Area ({"<"} 10)</div>
+                           <p>Ponto de reversão estatística de altíssima probabilidade. O preço atingiu exaustão máxima vendedora.</p>
+                        </div>
+                        <div className="space-y-2 border-l border-white/5 pl-4">
+                           <div className="text-foreground font-bold uppercase tracking-tighter">Neutral (30-70)</div>
+                           <p>Equilíbrio entre compradores e vendedores. Ideal para aguardar o rompimento de canais.</p>
+                        </div>
+                        <div className="space-y-2 border-l border-white/5 pl-4">
+                           <div className="text-red-400 font-bold uppercase tracking-tighter">Exhaustion ({">"} 85)</div>
+                           <p>Exaustão compradora iminente. Risco de queda brusca por realização de lucros institucional.</p>
+                        </div>
+                     </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
+          {/* Right Insight Column */}
           <aside className="space-y-6">
             <TrendingCoins />
             <NewsPanel />
             
-            <div className="glass-card p-5 rounded-xl border-primary/30 bg-primary/5 shadow-glow-sm">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="h-4 w-4 text-primary" />
-                <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Operacional V2.5</div>
+            <div className="glass-card p-5 rounded-xl border-primary/30 bg-primary/5 shadow-glow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-5">
+                 <Target className="h-16 w-16" />
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed italic">
-                O motor agora cruza **Liquidez Global** com {"**RSI < 10**"}. Quando uma bolha ciano surge no mapa coincidindo com o fundo do RSI, o sinal de "Snatch" é confirmado.
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-glow" />
+                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Master Intelligence V3</div>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
+                O Core "The Oracle Protocol" está integrando agora o **Mapa de Calor Temporal**. Busque as "Zonas Magnéticas" onde a liquidez massiva encontra o RSI inferior a 10 para entradas de altíssima precisão.
               </p>
-              <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                 <span className="text-[9px] uppercase font-mono text-muted-foreground">Status: MONITORANDO...</span>
-                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+              <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
+                 <span className="text-[9px] uppercase font-mono text-muted-foreground/60 tracking-widest">Protocolo: ATIVO</span>
+                 <Badge variant="outline" className="text-[8px] border-green-500/20 text-green-400 bg-green-500/5 uppercase">High-Density Mode</Badge>
               </div>
             </div>
           </aside>
