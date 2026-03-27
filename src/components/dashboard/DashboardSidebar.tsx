@@ -14,8 +14,8 @@ import {
 const mainItems = [
   { title: "Command Center", url: "/dashboard", icon: LayoutDashboard },
   { title: "Sinais Detalhados", url: "/dashboard/signals", icon: Zap },
+  { title: "Liquidity Magnet", url: "/dashboard/liquidity", icon: Target },
   { title: "Mercado Global", url: "/dashboard/market", icon: BarChart3 },
-  { title: "Monitoramento", url: "/dashboard/monitor", icon: Monitor },
 ];
 
 const filterItems = [

@@ -18,6 +18,7 @@ import AlertsPage from "./pages/AlertsPage.tsx";
 import AcademyPage from "./pages/AcademyPage.tsx";
 import MonitorPage from "./pages/MonitorPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
+import LiquidityPage from "./pages/LiquidityPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />
             <Route path="/dashboard/signals" element={<ProtectedDashboard><Dashboard initialTab="signals" /></ProtectedDashboard>} />
             <Route path="/dashboard/rsi" element={<ProtectedDashboard><Dashboard initialTab="overview" /></ProtectedDashboard>} />
+            <Route path="/dashboard/liquidity" element={<ProtectedDashboard><LiquidityPage /></ProtectedDashboard>} />
             <Route path="/dashboard/market" element={<ProtectedDashboard><MarketPage /></ProtectedDashboard>} />
             <Route path="/dashboard/monitor" element={<ProtectedDashboard><MonitorPage /></ProtectedDashboard>} />
             <Route path="/dashboard/charts" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />
