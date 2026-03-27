@@ -233,3 +233,21 @@ export function calculateStochRSI(prices: number[], period = 14): number {
   if (maxRsi === minRsi) return 50;
   return ((latestRsi - minRsi) / (maxRsi - minRsi)) * 100;
 }
+
+export function calculateFibonacci(prices: number[]) {
+  if (prices.length === 0) return { 0: 0, 0.236: 0, 0.382: 0, 0.5: 0, 0.618: 0, 0.786: 0, 1: 0 };
+  
+  const high = Math.max(...prices);
+  const low = Math.min(...prices);
+  const range = high - low;
+  
+  return {
+    1: high,
+    0.786: low + range * 0.786,
+    0.618: low + range * 0.618,
+    0.5: low + range * 0.5,
+    0.382: low + range * 0.382,
+    0.236: low + range * 0.236,
+    0: low,
+  };
+}

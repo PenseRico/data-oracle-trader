@@ -8,6 +8,8 @@ import { NewsPanel } from "@/components/dashboard/NewsPanel";
 import { TrendingCoins } from "@/components/dashboard/TrendingCoins";
 import { SnatchAlertList } from "@/components/dashboard/SnatchAlertList";
 import { LiquiditySnatchMap } from "@/components/dashboard/LiquiditySnatchMap";
+import { MarketPulse } from "@/components/dashboard/MarketPulse";
+import { DailyOracleInsight } from "@/components/dashboard/DailyOracleInsight";
 import { useMarkets, useFearGreed } from "@/lib/api/coingecko";
 import { enrichCoins } from "@/lib/signalEngine";
 import { useMemo, useState, useEffect } from "react";
@@ -52,8 +54,20 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
   return (
     <DashboardLayout>
       <div className="space-y-8 max-w-[1600px] mx-auto pb-20 px-4 md:px-6">
+        <MarketPulse />
+
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 gap-6">
+            <DailyOracleInsight 
+              signalsCount={enriched.filter(c => c.signal.total >= 5).length}
+              marketSentiment={fearGreedValue || 50}
+              topSignal={enriched[0] ? {
+                symbol: enriched[0].symbol,
+                score: enriched[0].signal.total,
+                confluence: enriched[0].signal.confluence
+              } : undefined}
+            />
+            
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUpDown, ChevronDown, ChevronUp, Info } from "lucide-react";
 import {
@@ -96,6 +96,7 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
               <TableHead className="text-xs text-right hidden md:table-cell"><SortHeader field="change24h">24h</SortHeader></TableHead>
               <TableHead className="text-xs text-center"><SortHeader field="rsi">RSI</SortHeader></TableHead>
               <TableHead className="text-xs text-center hidden md:table-cell">MAs</TableHead>
+              <TableHead className="text-xs text-center hidden lg:table-cell">Fib / BB</TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell"><SortHeader field="volume">Volume</SortHeader></TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell w-24">7D</TableHead>
               <TableHead className="text-xs w-8"></TableHead>
@@ -108,9 +109,10 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                   const change7d = coin.price_change_percentage_7d_in_currency ?? 0;
                   const sparkData = coin.sparkline_in_7d?.price?.filter((_, i) => i % 6 === 0) || [];
                   const isExpanded = expandedId === coin.id;
+                  const isGoldenPocket = coin.current_price >= coin.indicators.fib[0.618] * 0.995 && coin.current_price <= coin.indicators.fib[0.618] * 1.005;
 
                   return (
-                    <div key={coin.id} className="contents">
+                    <Fragment key={coin.id}>
                       <TableRow
                         className={`border-border/20 cursor-pointer hover:bg-primary/5 transition-colors ${s.isGoldenZone ? "bg-cyan-500/5" : s.isExhaustionZone ? "bg-red-500/5" : ""}`}
                         onClick={() => navigate(`/dashboard/coin/${coin.id}`)}
@@ -169,11 +171,25 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                         <TableCell className="text-center hidden md:table-cell">
                           <div className="flex items-center justify-center gap-1">
                             {coin.ma10 > coin.ma20 ? (
-                              <span className="text-[10px] text-primary">▲ Bull</span>
+                              <span className="text-[10px] text-primary">Bull ▲</span>
                             ) : (
-                              <span className="text-[10px] text-destructive">▼ Bear</span>
+                              <span className="text-[10px] text-destructive">Bear ▼</span>
                             )}
                           </div>
+                        </TableCell>
+                        <TableCell className="text-center hidden lg:table-cell">
+                           <div className="flex flex-col items-center gap-1">
+                              {isGoldenPocket && (
+                                <Badge className="bg-primary text-black font-black text-[8px] h-4 px-1 leading-none uppercase animate-pulse">Fib 0.618</Badge>
+                              )}
+                              {coin.current_price >= coin.indicators.bb.upper ? (
+                                <span className="text-[9px] text-red-400 font-bold uppercase tracking-tighter">BB Upper</span>
+                              ) : coin.current_price <= coin.indicators.bb.lower ? (
+                                <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-tighter">BB Lower</span>
+                              ) : (
+                                <span className="text-[8px] text-muted-foreground/40 font-mono uppercase tracking-widest italic">Neutral BB</span>
+                              )}
+                           </div>
                         </TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground font-mono hidden lg:table-cell">
                           {formatMarketCap(coin.total_volume)}
@@ -226,7 +242,7 @@ export function SignalEngineTable({ coins, title, isLoading }: SignalEngineTable
                           </TableCell>
                         </TableRow>
                       )}
-                    </div>
+                    </Fragment>
                   );
                 })}
           </TableBody>

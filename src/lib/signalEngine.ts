@@ -4,7 +4,8 @@ import {
   calculateSMA, 
   calculateMACD, 
   calculateBollingerBands, 
-  calculateStochRSI 
+  calculateStochRSI,
+  calculateFibonacci
 } from "./api/coingecko";
 
 export interface SignalScore {
@@ -42,6 +43,7 @@ export interface SignalIndicators {
   ma10: number;
   ma20: number;
   ma80: number;
+  fib: Record<number, number>;
 }
 
 export interface EnrichedCoin extends CoinGeckoMarket {
@@ -77,6 +79,7 @@ export function calculateSignalScore(
   const ma10 = calculateSMA(prices, 10);
   const ma20 = calculateSMA(prices, 20);
   const ma80 = calculateSMA(prices, 80);
+  const fib = calculateFibonacci(prices);
   const currentPrice = coin.current_price;
 
   const reasons: SignalReason[] = [];
@@ -163,6 +166,21 @@ export function calculateSignalScore(
     reasons.push({ factor: "Bollinger", description: "Preço tocando banda inferior — suporte", points: 2, category: "volatility" });
   }
 
+  // === FIBONACCI ZONES ===
+  const goldenPocketMin = fib[0.618] * 0.995;
+  const goldenPocketMax = fib[0.618] * 1.005;
+  
+  if (currentPrice >= goldenPocketMin && currentPrice <= goldenPocketMax) {
+    trend += 4;
+    reasons.push({ factor: "Fibonacci", description: "PREÇO NO GOLDEN POCKET (0.618) — Zona Institucional", points: 4, category: "trend" });
+  } else if (currentPrice >= fib[0.382] * 0.995 && currentPrice <= fib[0.382] * 1.005) {
+    trend += 2;
+    reasons.push({ factor: "Fibonacci", description: "Respeitando Fib 0.382 — Continuidade de tendência", points: 2, category: "trend" });
+  } else if (currentPrice >= fib[0.5] * 0.995 && currentPrice <= fib[0.5] * 1.005) {
+    trend += 1;
+    reasons.push({ factor: "Fibonacci", description: "Fib 0.5 — Ponto de equilíbrio", points: 1, category: "trend" });
+  }
+
   // === VOLUME ===
   const volumeRatio = coin.total_volume / coin.market_cap;
   if (volumeRatio > 0.15) {
@@ -228,6 +246,7 @@ export function enrichCoins(
       ma10: calculateSMA(prices, 10),
       ma20: calculateSMA(prices, 20),
       ma80: calculateSMA(prices, 80),
+      fib: calculateFibonacci(prices),
     };
 
     return {
