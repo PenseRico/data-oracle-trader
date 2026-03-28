@@ -5,7 +5,8 @@ import {
   IChartApi, 
   ISeriesApi, 
   CandlestickData,
-  UTCTimestamp
+  UTCTimestamp,
+  CandlestickSeries
 } from "lightweight-charts";
 import { getMockWhaleOrders, WhaleOrder } from "@/lib/orderFlowEngine";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,7 +52,7 @@ export default function InteractiveOrderFlowChart({
       },
     });
 
-    const candleSeries = chart.addCandlestickSeries({
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: "#00f2fe",
       downColor: "#f43f5e",
       borderVisible: false,
