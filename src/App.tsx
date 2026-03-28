@@ -21,6 +21,7 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import LiquidityPage from "./pages/LiquidityPage.tsx";
 import LeveragePage from "./pages/LeveragePage.tsx";
 import OrderBookPage from "./pages/OrderBookPage.tsx";
+import AssetAnalysisPage from "./pages/AssetAnalysisPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/dashboard/academy" element={<ProtectedDashboard><AcademyPage /></ProtectedDashboard>} />
             <Route path="/dashboard/profile" element={<ProtectedDashboard><ProfilePage /></ProtectedDashboard>} />
             <Route path="/dashboard/coin/:coinId" element={<ProtectedDashboard><CoinDetail /></ProtectedDashboard>} />
+            <Route path="/dashboard/analysis/:symbol" element={<ProtectedDashboard><AssetAnalysisPage /></ProtectedDashboard>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

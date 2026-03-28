@@ -3,7 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Zap, Target, AlertCircle } from "lucide-react";
 import { useMemo } from "react";
 
-export function SnatchAlertList() {
+interface SnatchAlertListProps {
+  onSelect?: (symbol: string) => void;
+}
+
+export function SnatchAlertList({ onSelect }: SnatchAlertListProps) {
   const liquidations = useGlobalLiquidations(200);
 
   const topSnaps = useMemo(() => {
@@ -34,7 +38,11 @@ export function SnatchAlertList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {topSnaps.map((snap, i) => (
-        <div key={i} className="glass-card p-5 rounded-xl border-primary/20 bg-black/60 shadow-[0_4px_20px_rgba(235,94,40,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer">
+        <div 
+          key={i} 
+          className="glass-card p-5 rounded-xl border-primary/20 bg-black/60 shadow-[0_4px_20px_rgba(235,94,40,0.1)] relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer"
+          onClick={() => onSelect?.(snap.symbol)}
+        >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
              <Zap className={`h-12 w-12 ${snap.side === "SELL" ? "text-red-500" : "text-cyan-400"}`} />
           </div>

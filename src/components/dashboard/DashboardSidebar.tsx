@@ -14,6 +14,7 @@ import {
 const mainItems = [
   { title: "Terminal de Comando", url: "/dashboard", icon: LayoutDashboard },
   { title: "Radar Elite", url: "/dashboard/signals", icon: Zap },
+  { title: "Análise Profunda", url: "/dashboard/analysis/BTCUSDT", icon: LineChart },
   { title: "Livro de Ordens", url: "/dashboard/orderbook", icon: Monitor },
   { title: "Rastro de Liquidez", url: "/dashboard/liquidity", icon: Target },
   { title: "Simulador de Risco", url: "/dashboard/leverage", icon: Calculator },
