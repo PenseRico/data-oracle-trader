@@ -20,6 +20,7 @@ import MonitorPage from "./pages/MonitorPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import LiquidityPage from "./pages/LiquidityPage.tsx";
 import LeveragePage from "./pages/LeveragePage.tsx";
+import OrderBookPage from "./pages/OrderBookPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/dashboard/signals" element={<ProtectedDashboard><Dashboard initialTab="signals" /></ProtectedDashboard>} />
             <Route path="/dashboard/rsi" element={<ProtectedDashboard><Dashboard initialTab="overview" /></ProtectedDashboard>} />
             <Route path="/dashboard/liquidity" element={<ProtectedDashboard><LiquidityPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/orderbook" element={<ProtectedDashboard><OrderBookPage /></ProtectedDashboard>} />
             <Route path="/dashboard/leverage" element={<ProtectedDashboard><LeveragePage /></ProtectedDashboard>} />
             <Route path="/dashboard/market" element={<ProtectedDashboard><MarketPage /></ProtectedDashboard>} />
             <Route path="/dashboard/monitor" element={<ProtectedDashboard><MonitorPage /></ProtectedDashboard>} />

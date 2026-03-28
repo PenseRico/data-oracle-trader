@@ -14,6 +14,7 @@ import {
 const mainItems = [
   { title: "Terminal de Comando", url: "/dashboard", icon: LayoutDashboard },
   { title: "Radar Elite", url: "/dashboard/signals", icon: Zap },
+  { title: "Livro de Ordens", url: "/dashboard/orderbook", icon: Monitor },
   { title: "Rastro de Liquidez", url: "/dashboard/liquidity", icon: Target },
   { title: "Simulador de Risco", url: "/dashboard/leverage", icon: Calculator },
   { title: "Panorama de Mercado", url: "/dashboard/market", icon: BarChart3 },
@@ -70,7 +71,7 @@ export function DashboardSidebar() {
             <Zap className="h-4 w-4 text-primary" />
           </div>
           {!collapsed && (
-            <span className="font-display font-bold text-lg text-foreground tracking-tight">Data Oracle <span className="text-primary">Hub</span></span>
+            <span className="font-display font-bold text-lg text-foreground tracking-tight">The Oracle <span className="text-primary">Protocol</span></span>
           )}
         </NavLink>
       </SidebarHeader>
@@ -83,7 +84,7 @@ export function DashboardSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
         {!collapsed && (
-          <div className="text-[10px] text-muted-foreground/50 text-center uppercase tracking-widest font-mono">v0.6.0 Alpha</div>
+          <div className="text-[10px] text-muted-foreground/50 text-center uppercase tracking-widest font-mono">v8.1.0 Institutional</div>
         )}
       </SidebarFooter>
     </Sidebar>
