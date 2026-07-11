@@ -8,7 +8,7 @@ import { InfoHint } from "@/components/dashboard/InfoHint";
 import { TrendBadge } from "@/components/dashboard/TrendBadge";
 import { useMarkets, calculateRSI, type CoinGeckoMarket } from "@/lib/api/coingecko";
 import { computeTrend } from "@/lib/trend";
-import { analisarCarteira, aiAvailable, setDevKey } from "@/lib/aiReader";
+import { analisarCarteira, aiAvailable, setDevKey, getDevKey } from "@/lib/aiReader";
 import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2 } from "lucide-react";
 
 interface Holding {
@@ -186,26 +186,25 @@ export default function MinhaCarteiraPage() {
                 <p className="text-[10px] text-muted-foreground/70 font-mono">A IA lê sua carteira e dá venda/recompra + 2 cenários com probabilidade</p>
               </div>
             </div>
-            {aiReady ? (
-              <button
-                onClick={runAI}
-                disabled={aiLoading || rows.length === 0}
-                className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {aiLoading ? "Analisando…" : "Analisar com IA"}
-              </button>
-            ) : (
-              <span className="text-[10px] text-amber-300/70 font-mono uppercase tracking-widest">configure a IA abaixo</span>
-            )}
+            <button
+              onClick={runAI}
+              disabled={aiLoading || rows.length === 0}
+              className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {aiLoading ? "Analisando…" : "Analisar com IA"}
+            </button>
           </div>
 
-          {!aiReady && (
-            <div className="flex flex-wrap gap-2 items-center">
+          <details className="group">
+            <summary className="cursor-pointer text-[10px] text-muted-foreground/60 font-mono uppercase tracking-widest hover:text-primary">
+              🔑 Usar minha chave (teste — sem backend) {getDevKey() ? "· ✅ configurada" : ""}
+            </summary>
+            <div className="flex flex-wrap gap-2 items-center mt-2">
               <Input
                 value={keyInput}
                 onChange={(e) => setKeyInput(e.target.value)}
-                placeholder="chave OpenRouter (teste local — fica só neste navegador)"
+                placeholder="chave OpenRouter — fica só neste navegador"
                 className="flex-1 min-w-[240px] bg-black/40 border-white/10 h-9 font-mono text-[11px]"
               />
               <button
@@ -214,9 +213,11 @@ export default function MinhaCarteiraPage() {
               >
                 Salvar
               </button>
-              <span className="w-full text-[9px] text-muted-foreground/50 font-mono">Em produção a chave fica no backend (Edge Function) — isto é só pra você testar agora.</span>
+              <span className="w-full text-[9px] text-muted-foreground/50 font-mono">
+                Com chave preenchida, a IA usa ela no SEU navegador (não vaza pra outros). Vazia = usa o backend (Edge Function, quando você fizer o deploy).
+              </span>
             </div>
-          )}
+          </details>
 
           {aiError && (
             <div className="text-[11px] text-rose-300/90 font-mono bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">{aiError}</div>
