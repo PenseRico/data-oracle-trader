@@ -8,7 +8,7 @@ import { InfoHint } from "@/components/dashboard/InfoHint";
 import { TrendBadge } from "@/components/dashboard/TrendBadge";
 import { useMarkets, calculateRSI, type CoinGeckoMarket } from "@/lib/api/coingecko";
 import { computeTrend } from "@/lib/trend";
-import { analisarCarteira, aiAvailable, setDevKey, getDevKey } from "@/lib/aiReader";
+import { analisarCarteira } from "@/lib/aiReader";
 import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2 } from "lucide-react";
 
 interface Holding {
@@ -100,12 +100,10 @@ export default function MinhaCarteiraPage() {
 
   const remove = (symbol: string) => setHoldings((prev) => prev.filter((h) => h.symbol !== symbol));
 
-  // ── IA (Pro) ──
-  const [aiReady, setAiReady] = useState(aiAvailable());
+  // ── IA (Pro) — roda pela nossa Edge Function (chave no servidor, cliente não vê nada) ──
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [keyInput, setKeyInput] = useState("");
 
   const runAI = async () => {
     setAiLoading(true); setAiError(null); setAiResult(null);
@@ -196,28 +194,6 @@ export default function MinhaCarteiraPage() {
             </button>
           </div>
 
-          <details className="group">
-            <summary className="cursor-pointer text-[10px] text-muted-foreground/60 font-mono uppercase tracking-widest hover:text-primary">
-              🔑 Usar minha chave (teste — sem backend) {getDevKey() ? "· ✅ configurada" : ""}
-            </summary>
-            <div className="flex flex-wrap gap-2 items-center mt-2">
-              <Input
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value)}
-                placeholder="chave OpenRouter — fica só neste navegador"
-                className="flex-1 min-w-[240px] bg-black/40 border-white/10 h-9 font-mono text-[11px]"
-              />
-              <button
-                onClick={() => { if (keyInput.trim()) { setDevKey(keyInput); setKeyInput(""); setAiReady(true); } }}
-                className="rounded-lg bg-primary/15 border border-primary/40 px-4 h-9 text-[11px] font-black uppercase tracking-widest text-primary"
-              >
-                Salvar
-              </button>
-              <span className="w-full text-[9px] text-muted-foreground/50 font-mono">
-                Com chave preenchida, a IA usa ela no SEU navegador (não vaza pra outros). Vazia = usa o backend (Edge Function, quando você fizer o deploy).
-              </span>
-            </div>
-          </details>
 
           {aiError && (
             <div className="text-[11px] text-rose-300/90 font-mono bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">{aiError}</div>
