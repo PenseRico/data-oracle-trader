@@ -12,10 +12,12 @@ const LS = "oracle:plan";
 const listeners = new Set<() => void>();
 
 export function getPlan(): Plan {
+  // ABERTO PARA TESTE: sem valor salvo => "pro" (tudo liberado).
+  // Quando ligar o pagamento (Sprint E), trocar o default de volta p/ "free".
   try {
-    return localStorage.getItem(LS) === "pro" ? "pro" : "free";
+    return localStorage.getItem(LS) === "free" ? "free" : "pro";
   } catch {
-    return "free";
+    return "pro";
   }
 }
 
