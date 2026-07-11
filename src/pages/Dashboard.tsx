@@ -1,12 +1,12 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MarketOverviewTerminal } from "@/components/dashboard/MarketOverviewTerminal";
 import { HomeHero } from "@/components/dashboard/HomeHero";
+import { CryptoBubbles } from "@/components/dashboard/CryptoBubbles";
 import { SignalEngineTable } from "@/components/dashboard/SignalEngineTable";
 import { RsiHeatmap } from "@/components/dashboard/RsiHeatmap";
 import { NewsPanel } from "@/components/dashboard/NewsPanel";
 import { InfoHint } from "@/components/dashboard/InfoHint";
 import { DailyOracleInsight } from "@/components/dashboard/DailyOracleInsight";
-import { CoinglassWhaleBoard } from "@/components/dashboard/CoinglassWhaleBoard";
 import { MacroBanner } from "@/components/dashboard/MacroBanner";
 import { DailyTopSetups } from "@/components/dashboard/DailyTopSetups";
 import { LiveLiquidationTicker } from "@/components/dashboard/LiveLiquidationTicker";
@@ -113,6 +113,9 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
             {/* 1. Visão de Mercado — terminal denso (regime, macro, movers, desempenho, altseason) */}
             <MarketOverviewTerminal fearGreed={fearGreedValue} />
 
+            {/* Crypto Bubbles — visão rápida do mercado (tamanho=mcap, cor=24h) */}
+            <CryptoBubbles />
+
             {/* 2. Daily Top Setups — hero section */}
             <div className="space-y-3">
               <div className="flex items-center gap-2 px-1">
@@ -142,38 +145,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
               }
             />
 
-            {/* Confluência de Elite — largura total (sem caixa de rolagem) */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 px-1">
-                <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                <h3 className="text-sm font-black uppercase tracking-[0.3em] font-display text-white italic">
-                  Confluência de Elite
-                </h3>
-                <InfoHint id="confluencia" />
-              </div>
-              <SignalEngineTable
-                coins={
-                  tradeable.filter((c) => c.signal.confluence === "High" || c.signal.isGoldenZone).length > 0
-                    ? tradeable.filter((c) => c.signal.confluence === "High" || c.signal.isGoldenZone).slice(0, 12)
-                    : tradeable.slice(0, 12)
-                }
-                title=""
-                isLoading={isLoading}
-                onSelect={handleCoinSelect}
-              />
-            </div>
-
-            {/* Monitoramento Whale — livro REAL (Binance Spot depth), largura total */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 px-1 text-primary">
-                <Target className="h-4 w-4" />
-                <span className="text-[11px] font-black uppercase tracking-widest italic">
-                  Monitoramento Whale · Livro Real (Binance)
-                </span>
-                <InfoHint id="whale" />
-              </div>
-              <CoinglassWhaleBoard />
-            </div>
+            {/* Notícias */}
             <NewsPanel />
           </div>
         )}

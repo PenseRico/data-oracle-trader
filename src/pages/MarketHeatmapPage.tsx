@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { EconomicCalendarWidget } from "@/components/dashboard/EconomicCalendarWidget";
 import { TrendingUp, BarChart3 } from "lucide-react";
 
 /**
@@ -98,14 +99,14 @@ export default function MarketHeatmapPage() {
               Calendário Econômico Global
             </h2>
             <span className="text-[9px] text-muted-foreground/50 font-mono uppercase tracking-widest ml-auto">
-              powered by investing.com
+              powered by TradingView
             </span>
           </div>
           <div className="glass-card p-4 rounded-xl border-primary/10">
             <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono mb-4">
               Eventos macro de alto impacto que movem o mercado cripto — FOMC, CPI, NFP, PIB
             </p>
-            <InvestingCalendar />
+            <EconomicCalendarWidget height={620} />
           </div>
         </div>
       </div>

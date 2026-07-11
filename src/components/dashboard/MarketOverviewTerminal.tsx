@@ -7,7 +7,6 @@ import {
 } from "@/lib/api/coingecko";
 import { Gauge, Globe, TrendingUp, TrendingDown, Activity, Flame, Minus } from "lucide-react";
 import { GlobalSessions } from "./GlobalSessions";
-import { TradFiTicker } from "./TradFiTicker";
 import { InfoHint } from "./InfoHint";
 import { computeTrend, type TrendResult } from "@/lib/trend";
 
@@ -433,7 +432,6 @@ export function MarketOverviewTerminal({ fearGreed }: { fearGreed?: number }) {
 
   return (
     <div className="space-y-4">
-      <TradFiTicker />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Termometros fearGreed={fearGreed} markets={markets} global={globalQ.data} time={time} />
         <MacroGlobal markets={markets} global={globalQ.data} time={time} />
