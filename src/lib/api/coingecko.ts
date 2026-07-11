@@ -14,6 +14,8 @@ export interface CoinGeckoMarket {
   price_change_percentage_1h_in_currency: number | null;
   price_change_percentage_24h_in_currency: number | null;
   price_change_percentage_7d_in_currency: number | null;
+  price_change_percentage_30d_in_currency?: number | null;
+  price_change_percentage_1y_in_currency?: number | null;
   sparkline_in_7d: { price: number[] };
   ath: number;
   atl: number;
@@ -21,11 +23,18 @@ export interface CoinGeckoMarket {
 
 export interface CoinGeckoGlobal {
   data: {
+    active_cryptocurrencies?: number;
+    markets?: number;
     total_market_cap: Record<string, number>;
     total_volume: Record<string, number>;
     market_cap_percentage: Record<string, number>;
     market_cap_change_percentage_24h_usd: number;
   };
+}
+
+export interface CoinGeckoMarketPerf extends CoinGeckoMarket {
+  price_change_percentage_30d_in_currency: number | null;
+  price_change_percentage_1y_in_currency: number | null;
 }
 
 export interface CoinGeckoTrending {
@@ -61,10 +70,23 @@ export function useMarkets(page = 1, perPage = 50) {
     queryKey: ["coingecko-markets", page, perPage],
     queryFn: () =>
       fetchJson<CoinGeckoMarket[]>(
-        `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d`
+        `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=true&price_change_percentage=1h,24h,7d,30d,1y`
       ),
     staleTime: 60_000,
     refetchInterval: 60_000,
+  });
+}
+
+// Markets com performance multi-período (1h/24h/7d/30d/1a) — p/ grade de desempenho
+export function useMarketsPerf(perPage = 50) {
+  return useQuery({
+    queryKey: ["coingecko-markets-perf", perPage],
+    queryFn: () =>
+      fetchJson<CoinGeckoMarketPerf[]>(
+        `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=1&sparkline=false&price_change_percentage=1h,24h,7d,30d,1y`
+      ),
+    staleTime: 120_000,
+    refetchInterval: 120_000,
   });
 }
 

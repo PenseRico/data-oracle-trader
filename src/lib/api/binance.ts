@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const BINANCE_BASE = "https://api.binance.com/api/v3";
 
-export type Timeframe = "1h" | "4h" | "12h" | "1d";
+export type Timeframe = "5m" | "15m" | "1h" | "4h" | "12h" | "1d";
 
 export interface BinanceKline {
   openTime: number;
@@ -72,7 +72,7 @@ export function useMultiRsi(symbol: string) {
   return useQuery({
     queryKey: ["binance-multi-rsi", symbol],
     queryFn: async () => {
-      const timeframes: Timeframe[] = ["1h", "4h", "12h", "1d"];
+      const timeframes: Timeframe[] = ["5m", "15m", "1h", "4h", "1d"];
       const results: Record<string, number> = {};
       
       await Promise.all(timeframes.map(async (tf) => {
@@ -96,7 +96,7 @@ export function useRsiHeatmapData(symbols: string[]) {
   return useQuery({
     queryKey: ["binance-rsi-heatmap", symbols],
     queryFn: async () => {
-      const timeframes: Timeframe[] = ["1h", "4h", "12h", "1d"];
+      const timeframes: Timeframe[] = ["5m", "15m", "1h", "4h", "1d"];
       const heatmap: Record<string, Record<string, number>> = {};
       
       // Batch processing with small delays if needed, but for 20-30 symbols it's ok

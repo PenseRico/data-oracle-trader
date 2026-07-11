@@ -174,10 +174,10 @@ export const formatPrice = (price: number): string => {
 };
 
 export const formatMarketCap = (cap: number): string => {
-  if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2)}T`;
-  if (cap >= 1e9) return `$${(cap / 1e9).toFixed(2)}B`;
-  if (cap >= 1e6) return `$${(cap / 1e6).toFixed(2)}M`;
-  return `$${cap.toLocaleString()}`;
+  if (cap >= 1e12) return `$${(cap / 1e12).toFixed(2).replace('.', ',')} Tri`;
+  if (cap >= 1e9)  return `$${(cap / 1e9).toFixed(2).replace('.', ',')} Bi`;
+  if (cap >= 1e6)  return `$${(cap / 1e6).toFixed(2).replace('.', ',')} Mi`;
+  return `$${cap.toLocaleString('pt-BR')}`;
 };
 
 export const formatVolume = formatMarketCap;

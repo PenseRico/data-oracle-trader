@@ -29,8 +29,13 @@ export function SnatchAlertList({ onSelect }: SnatchAlertListProps) {
 
   if (topSnaps.length === 0) {
     return (
-      <div className="glass-card p-6 border-white/5 animate-pulse flex items-center justify-center">
-         <div className="text-xs text-muted-foreground uppercase font-mono tracking-widest">Aguardando Liquidações Globais...</div>
+      <div className="glass-card p-5 border-white/5 flex items-start gap-3">
+        <AlertCircle className="h-4 w-4 text-amber-400/70 shrink-0 mt-0.5" />
+        <div className="text-[11px] text-muted-foreground/80 font-mono leading-relaxed">
+          Aguardando liquidações ao vivo da Binance Futures — o radar preenche assim que grandes
+          posições alavancadas são liquidadas. Se ficar permanentemente vazio, a Binance pode estar
+          bloqueada na sua rede/região (o stream <code>fstream.binance.com</code> precisa estar acessível).
+        </div>
       </div>
     );
   }

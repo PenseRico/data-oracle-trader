@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/select";
 import { formatMarketCap } from "@/data/mockCoins";
 import { MiniSparkline } from "./MiniSparkline";
+import { InfoHint } from "./InfoHint";
+import { TrendBadge } from "./TrendBadge";
 import { CoinGeckoMarket, calculateRSI, calculateSMA } from "@/lib/api/coingecko";
 
 interface LiveCoinTableProps {
@@ -108,8 +110,9 @@ export function LiveCoinTable({ coins, title, isLoading }: LiveCoinTableProps) {
               <TableHead className="text-xs text-right hidden md:table-cell"><SortHeader field="change24h">24h %</SortHeader></TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell"><SortHeader field="marketCap">Market Cap</SortHeader></TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell"><SortHeader field="volume">Volume</SortHeader></TableHead>
-              <TableHead className="text-xs text-center"><SortHeader field="rsi">RSI</SortHeader></TableHead>
-              <TableHead className="text-xs text-center hidden md:table-cell">MA 10/20/80</TableHead>
+              <TableHead className="text-xs text-center"><div className="flex items-center justify-center gap-1"><SortHeader field="rsi">RSI</SortHeader><InfoHint id="rsi" /></div></TableHead>
+              <TableHead className="text-xs text-center"><div className="flex items-center justify-center gap-1">Tend.<InfoHint id="trend" /></div></TableHead>
+              <TableHead className="text-xs text-center hidden md:table-cell"><div className="flex items-center justify-center gap-1">MA 10/20/80<InfoHint id="movingAverages" /></div></TableHead>
               <TableHead className="text-xs text-center">Sinal</TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell w-24">7D</TableHead>
             </TableRow>
@@ -157,6 +160,9 @@ export function LiveCoinTable({ coins, title, isLoading }: LiveCoinTableProps) {
                     <span className={`inline-flex items-center justify-center text-xs font-mono font-bold px-2 py-0.5 rounded ${getRsiBg(coin.rsi)}`}>
                       {Math.round(coin.rsi)}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <TrendBadge prices={coin.sparkline_in_7d?.price} />
                   </TableCell>
                   <TableCell className="text-center hidden md:table-cell">
                     <div className="flex items-center justify-center gap-1 text-[10px] font-mono text-muted-foreground">

@@ -26,18 +26,8 @@ export function LiquiditySnatchMap({ symbol = "BTCUSDT", height = 350 }: Props) 
 
   // Model 3 Aesthetic: Temporal Density Matrix
   const heatmapMatrix = useMemo(() => {
-    // High-fidelity fallback if empty
-    const dataToUse = allLiquidations.length > 0 
-      ? allLiquidations.filter(l => l.symbol.includes(symbol.replace("USDT", "")))
-      : Array.from({ length: 40 }).map((_, i) => ({
-          symbol,
-          side: i % 2 === 0 ? "BUY" : "SELL",
-          price: 65000 + Math.random() * 2000,
-          quantity: Math.random() * 5,
-          time: Date.now() - Math.random() * 86400000,
-          usdValue: Math.random() * 100000
-        }));
-
+    // Apenas dado real de liquidações — sem fallback inventado.
+    const dataToUse = allLiquidations.filter((l) => l.symbol.includes(symbol.replace("USDT", "")));
     if (dataToUse.length === 0) return [];
 
     const now = Date.now();
@@ -103,9 +93,21 @@ export function LiquiditySnatchMap({ symbol = "BTCUSDT", height = 350 }: Props) 
 
   if (heatmapMatrix.length === 0) {
     return (
-      <div className="glass-card p-6 flex flex-col items-center justify-center gap-4 border-white/5 bg-black/40" style={{ height }}>
-         <RefreshCw className="h-6 w-6 text-primary animate-spin" />
-         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Iniciando Varredura Temporal V3...</p>
+      <div className="glass-card p-6 flex flex-col items-center justify-center gap-3 border-white/5 bg-black/40 text-center" style={{ height }}>
+        {isForcedLoading ? (
+          <>
+            <RefreshCw className="h-6 w-6 text-primary animate-spin" />
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Conectando ao feed de liquidações…</p>
+          </>
+        ) : (
+          <>
+            <Info className="h-6 w-6 text-amber-400/70" />
+            <p className="text-[11px] text-muted-foreground/80 font-mono max-w-sm leading-relaxed">
+              Sem liquidações de {symbol.replace("USDT", "")} no feed ainda. O mapa preenche quando há
+              liquidações na Binance Futures — se ficar vazio, a Binance pode estar bloqueada na sua rede/região.
+            </p>
+          </>
+        )}
       </div>
     );
   }

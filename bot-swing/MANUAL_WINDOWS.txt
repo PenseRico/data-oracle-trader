@@ -1,0 +1,393 @@
+================================================================
+MANUAL WINDOWS - DO ZERO AO PRIMEIRO USO DO PAINEL
+================================================================
+
+Este manual leva voce do zero ao painel rodando no Windows em
+~10 minutos. Nao precisa saber Python, nao precisa de conta
+na exchange, nao precisa de chave de API.
+
+
+----------------------------------------------------------------
+O QUE VOCE PRECISA
+----------------------------------------------------------------
+
+  - PC com Windows 10 ou Windows 11
+  - Conexao com internet
+  - A pasta "Bot-binance-painel" (que veio neste pacote)
+
+
+================================================================
+DE ONDE VEM OS DADOS (IMPORTANTE)
+================================================================
+
+O bot NAO usa TradingView. Ele puxa os candles direto da API
+publica da propria exchange escolhida (Binance, Bybit, OKX,
+etc) usando uma biblioteca chamada CCXT.
+
+Como funciona internamente:
+
+  1) CCXT conecta no endpoint publico da exchange (sem login,
+     sem chave de API, sem cadastro)
+  2) Baixa os candles do timeframe escolhido (open, high, low,
+     close e volume de cada barra)
+  3) Calcula RSI, EMA/SMA e variacao de volume LOCALMENTE no
+     seu PC, replicando a mesma matematica do indicador Pine
+     "Setup Compra"
+
+Por que isso importa pra voce:
+
+  - Nao precisa de conta TradingView nem assinatura paga
+  - Nao precisa de chave de API da exchange (so leitura publica)
+  - Nao tem limite de simbolos (TradingView cobra por alerta)
+  - Funciona em qualquer exchange suportada pelo CCXT (~100)
+  - O painel roda 100% offline no seu PC (so usa internet pra
+    baixar os candles)
+
+A funcao "Validar 1 simbolo" do painel existe exatamente pra
+voce conferir 1 par no TradingView e comparar os numeros com
+o que o bot calculou. Se baterem ate 4 casas decimais (e batem),
+pode confiar 100% que o bot replica o indicador original.
+
+
+================================================================
+PASSO 1 - INSTALAR O PYTHON (uma vez so)
+================================================================
+
+1.1) Abra o navegador (Chrome, Edge, Firefox) e va em:
+
+         https://www.python.org/downloads/
+
+1.2) Clique no botao amarelo grande "Download Python 3.13.x"
+     (a versao pode variar, qualquer 3.10 ou superior serve)
+
+1.3) Aguarde o download terminar.
+
+1.4) Clique 2 vezes no arquivo baixado para abrir o instalador.
+
+1.5) ATENCAO - PASSO MAIS IMPORTANTE DE TODOS:
+
+     Na PRIMEIRA TELA do instalador, antes de clicar em qualquer
+     coisa, MARQUE a caixa que diz:
+
+         [ x ] Add python.exe to PATH
+
+     (fica na parte de baixo da janela)
+
+     Se voce esquecer disso, o painel NAO VAI ABRIR e voce vai
+     precisar desinstalar e reinstalar o Python.
+
+1.6) DEPOIS de marcar a caixa, clique em "Install Now".
+
+1.7) Aguarde a instalacao terminar (1-2 minutos). Pode pedir
+     permissao de administrador, autorize com "Sim".
+
+1.8) Quando aparecer "Setup was successful", clique em "Close".
+
+
+----------------------------------------------------------------
+COMO CONFIRMAR QUE INSTALOU CERTO
+----------------------------------------------------------------
+
+  1) Pressione a tecla Windows e digite:  cmd
+  2) Abra o "Prompt de Comando"
+  3) Digite o comando:    python --version
+  4) Aperte Enter
+
+  Resultado esperado:    Python 3.13.x
+
+  Se aparecer isso: tudo certo, pode fechar a janela.
+
+  Se aparecer "comando nao reconhecido":
+     -> Voce esqueceu de marcar a caixa "Add to PATH" no passo 1.5
+     -> Solucao: Painel de Controle > Programas > Desinstalar
+        Python > rode o instalador de novo MARCANDO a caixa.
+
+
+================================================================
+PASSO 2 - DESCOMPACTAR A PASTA DO BOT
+================================================================
+
+2.1) Se a pasta veio em um arquivo .zip:
+     - Clique com o botao direito no arquivo .zip
+     - Escolha "Extrair tudo..." (ou "Extract All")
+     - Clique em "Extrair"
+
+2.2) Coloque a pasta em algum lugar facil de achar.
+     Sugestao: Documentos\Bot-binance-painel
+
+     Estrutura final esperada:
+
+     Documentos\
+        Bot-binance-painel\
+           painel.bat        <-- voce vai clicar aqui
+           painel.sh
+           painel.py
+           bot.py
+           config.json
+           requirements.txt
+           README.txt
+           MANUAL_WINDOWS.txt   (este arquivo)
+           ...
+
+
+================================================================
+PASSO 3 - PRIMEIRA EXECUCAO DO PAINEL
+================================================================
+
+3.1) Entre na pasta "Bot-binance-painel" no Windows Explorer.
+
+3.2) De duplo clique no arquivo "painel.bat".
+
+3.3) Vai abrir uma janela preta (Prompt de Comando). NAO FECHE.
+
+     Na primeira execucao voce vera mensagens como:
+
+         [setup] Criando ambiente virtual...
+         [setup] Instalando dependencias (pode demorar 2-3 min...
+
+     Esta baixando ccxt, pandas e streamlit. Aguarde com paciencia.
+
+3.4) Quando a instalacao terminar, voce ve:
+
+         [painel] Abrindo em http://localhost:8501
+         You can now view your Streamlit app in your browser.
+
+3.5) Em ~3 segundos o navegador (Edge ou Chrome) abre sozinho
+     na pagina do painel.
+
+     Se NAO abrir sozinho:
+     - Abra o Chrome ou Edge manualmente
+     - Cole na barra de endereco:    http://localhost:8501
+
+
+================================================================
+PASSO 4 - USANDO O PAINEL
+================================================================
+
+A tela tem duas areas:
+
+  ESQUERDA (sidebar): formulario de configuracao
+  DIREITA (centro):   botao de rodar e resultado
+
+Fluxo basico:
+
+  1) Confira a config no topo da sidebar (exchange, timeframe,
+     RSI, MA, volume).
+
+  2) Se quiser mudar algo:
+     - Edite o campo
+     - Role ate o final da sidebar
+     - Clique em "Salvar configuracao"
+     - A linha "Config ativa" no topo da pagina atualiza
+
+  3) Clique no botao laranja "Rodar varredura" no topo do centro.
+
+  4) Aparece uma barra de progresso (X/Y pares, sinais, erros).
+     Demora 2-3 minutos numa exchange grande tipo Binance.
+
+  5) Quando termina, aparece a secao "Ultima varredura" com:
+     - Metricas: pares varridos, sinais encontrados, erros, tempo
+     - Status BTC (BULLISH/BEARISH e estrutura)
+     - Tabela com os pares que dispararam sinal, ordenada por
+       distancia da media. Da pra clicar nos cabecalhos pra
+       reordenar.
+
+  6) Tudo que aparece e tambem salvo em sinais.txt na pasta.
+     O expansor "Historico (sinais.txt)" mostra todas as
+     varreduras anteriores.
+
+
+================================================================
+VALIDAR 1 SIMBOLO ESPECIFICO (CRUZAR COM TRADINGVIEW)
+================================================================
+
+No topo do painel tem o campo "Validar 1 simbolo". Util pra
+conferir 1 par de cada vez sem rodar a varredura inteira, e
+pra cruzar a matematica com o TradingView.
+
+  1) Digite o par (ex: BTCUSDT, ETHUSDT, SOLUSDT)
+  2) Clique em "Validar simbolo"
+  3) Aparecem cards com RSI, MA, close (com distancia), vol change
+
+Compare esses numeros com o Data Window do TradingView no mesmo
+par e timeframe (atalho Alt+D no TV). Eles devem bater ate 4
+casas decimais. Se baterem, voce confirmou que o bot calcula
+exatamente a mesma coisa que o indicador Pine "Setup Compra".
+
+
+================================================================
+PARANDO O PAINEL
+================================================================
+
+Na janela preta do Prompt de Comando, aperte:
+
+         Ctrl + C
+
+O servidor para. Pode fechar a aba do navegador depois. Se
+preferir, basta fechar a janela preta no X - mata o painel
+junto.
+
+
+================================================================
+NAS PROXIMAS VEZES
+================================================================
+
+Sempre que quiser usar:
+
+  - Duplo clique em painel.bat -> sobe em ~5 segundos
+
+A instalacao das bibliotecas nao se repete.
+
+
+================================================================
+TROCAR DE CORRETORA E AJUSTAR PARAMETROS
+================================================================
+
+Tudo e feito pelo painel:
+
+  TROCAR EXCHANGE
+       Sidebar > "Exchange (ccxt id)" > digite o nome
+       Suportadas: binance, bybit, okx, gate, kucoin, mexc,
+       bitget, kraken, bingx, htx, coinbase, e mais.
+       Lista completa: https://github.com/ccxt/ccxt#supported-exchanges
+
+  TROCAR QUOTE ASSET
+       Sidebar > "Quote asset" > USDT, USDC ou ALL
+
+  TROCAR TIMEFRAME
+       Sidebar > "Timeframe"
+       Opcoes: 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1M
+
+  AJUSTAR RSI
+       Sidebar > campos "Periodo RSI", "RSI minimo", "RSI maximo"
+
+  TROCAR TIPO E PERIODO DA MEDIA
+       Sidebar > "Media movel" > Tipo (EMA ou SMA) e Periodo MA
+
+  MUDAR TOLERANCIA DE DISTANCIA DA MEDIA
+       Sidebar > "Distancia +/- % do close ate a MA"
+
+  AJUSTAR VOLUME
+       Sidebar > "Periodo SMA do volume" e min/max
+
+  CONFIGURAR FILTRO BTC
+       Sidebar > secao "Filtro BTC"
+
+Sempre clique em "Salvar configuracao" no fim da sidebar pra
+aplicar. Depois clique em "Rodar varredura".
+
+
+================================================================
+USAR PELO TERMINAL (SEM PAINEL)
+================================================================
+
+Se preferir a versao linha-de-comando original:
+
+         run.bat                    # 1 varredura, sai
+         run.bat --loop             # roda continuo a cada barra
+         run.bat --validate BTCUSDT # debug 1 simbolo
+
+Os dois (painel e CLI) compartilham o mesmo config.json e o
+mesmo sinais.txt.
+
+
+================================================================
+PROBLEMAS COMUNS E SOLUCOES
+================================================================
+
+PROBLEMA: Janela preta abre e fecha rapido
+  CAUSA:   Erro logo no inicio (Python nao instalado ou nao no PATH)
+  SOLUCAO: Veja as instrucoes do Passo 1.5 acima. Reinstale o
+           Python marcando "Add to PATH".
+
+
+PROBLEMA: "python nao e reconhecido"
+  CAUSA:   Python nao esta no PATH do Windows
+  SOLUCAO: Reinstale marcando "Add python.exe to PATH" na 1a tela.
+
+
+PROBLEMA: Erro ao instalar dependencias na 1a execucao
+  CAUSA:   Sem internet, ou antivirus bloqueando, ou pip travado
+  SOLUCAO: 1) Confirme que tem internet
+           2) Tente desativar antivirus temporariamente
+           3) Apague a pasta .venv (esta dentro da pasta) e
+              rode painel.bat de novo
+
+
+PROBLEMA: Navegador nao abre sozinho
+  SOLUCAO: Abra Chrome ou Edge manualmente e digite:
+           http://localhost:8501
+
+
+PROBLEMA: "Esta pagina nao esta funcionando" no navegador
+  CAUSA:   O servidor caiu ou ainda nao subiu
+  SOLUCAO: Olhe a janela preta. Se aparecer "You can now view
+           your Streamlit app", da F5 na pagina. Se a janela
+           preta foi fechada, duplo clique em painel.bat de novo.
+
+
+PROBLEMA: "RateLimitExceeded" durante a varredura
+  CAUSA:   Bot rapido demais pra exchange
+  SOLUCAO: Sidebar > "Avancado" > aumente "Delay entre requests"
+           de 200 para 400 ou 500. Clique em "Salvar configuracao"
+           e rode de novo.
+
+
+PROBLEMA: Quero parar uma varredura no meio
+  SOLUCAO: Nao da pra cancelar pelo painel sem fechar.
+           Feche a aba do navegador OU Ctrl+C na janela preta.
+           Os sinais ja encontrados ate ali nao sao salvos
+           (so salva no fim da varredura).
+
+
+PROBLEMA: Algumas moedas dao erro
+  CAUSA:   Par recem-listado sem 200 candles, ou par delistado
+  SOLUCAO: Normal. O bot ignora e segue. Os erros aparecem na
+           area "Ultima varredura" como expansor. Nao precisa
+           fazer nada se for menos de 5% dos pares.
+
+
+================================================================
+ARQUIVOS DA PASTA
+================================================================
+
+painel.bat          -> launcher Windows (use este, clique 2x)
+painel.sh           -> launcher Mac/Linux (ignora no Windows)
+painel.py           -> codigo do painel Streamlit (nao editar)
+bot.py              -> codigo do bot (nao editar)
+config.json         -> parametros (o painel edita pra voce)
+requirements.txt    -> dependencias Python
+sinais.txt          -> historico de relatorios (gerado automatico)
+bot.log/erros.log   -> logs (gerados automatico)
+README.txt          -> introducao geral
+MANUAL_WINDOWS.txt  -> este arquivo
+MANUAL_MAC.txt      -> manual da versao Mac
+DEBUG.md            -> guia de erros e diagnostico
+.venv\              -> ambiente Python isolado (gerado na 1a execucao)
+
+
+================================================================
+SEGURANCA
+================================================================
+
+O bot:
+  - NAO conecta na sua conta de exchange
+  - NAO precisa de senha, chave de API, login
+  - NAO compra, NAO vende, NAO movimenta dinheiro
+  - So LE preco publico de candles
+
+O painel roda 100% local na sua maquina (localhost). Ninguem
+de fora acessa. Sem internet, ele so nao consegue baixar os
+candles novos - mas o painel abre normalmente.
+
+
+================================================================
+PRECISA DE AJUDA?
+================================================================
+
+Mande pro responsavel (Davidson):
+  1) Print da janela preta com a mensagem de erro
+  2) Print do painel se for problema visual
+  3) Conteudo de erros.log (na pasta) se for erro durante varredura
+
+Com esses 3 itens o diagnostico costuma sair em minutos.

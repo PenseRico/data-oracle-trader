@@ -35,10 +35,10 @@ export function Navbar() {
           href="#"
           className="flex items-center gap-2 font-display text-xl font-bold text-foreground transition-all duration-200 hover:drop-shadow-[0_0_12px_hsl(var(--primary)/0.5)]"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
-            <span className="text-primary font-bold text-sm">D</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary border border-primary/60 shadow-[0_0_12px_hsl(var(--primary)/0.5)]">
+            <span className="text-black font-black text-sm">M</span>
           </div>
-          Data Oracle <span className="text-primary">Hub</span>
+          <span className="text-primary font-black text-xl tracking-tighter">Matrix</span>
         </a>
 
         {/* Desktop links */}

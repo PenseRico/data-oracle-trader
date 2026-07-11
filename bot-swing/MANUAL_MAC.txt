@@ -1,0 +1,354 @@
+================================================================
+MANUAL MAC - DO ZERO AO PRIMEIRO USO DO PAINEL
+================================================================
+
+Este manual leva voce do zero ao painel rodando no Mac em ~10 min.
+Nao precisa saber Python, nao precisa de conta na exchange, nao
+precisa de chave de API.
+
+
+----------------------------------------------------------------
+O QUE VOCE PRECISA
+----------------------------------------------------------------
+
+  - Mac com macOS recente (Big Sur ou superior)
+  - Conexao com internet
+  - A pasta "Bot-binance-painel" salva em algum lugar (ex: Documentos)
+
+
+================================================================
+DE ONDE VEM OS DADOS (IMPORTANTE)
+================================================================
+
+O bot NAO usa TradingView. Ele puxa os candles direto da API
+publica da propria exchange escolhida (Binance, Bybit, OKX,
+etc) usando uma biblioteca chamada CCXT.
+
+Como funciona internamente:
+
+  1) CCXT conecta no endpoint publico da exchange (sem login,
+     sem chave de API, sem cadastro)
+  2) Baixa os candles do timeframe escolhido (open, high, low,
+     close e volume de cada barra)
+  3) Calcula RSI, EMA/SMA e variacao de volume LOCALMENTE no
+     seu Mac, replicando a mesma matematica do indicador Pine
+     "Setup Compra"
+
+Por que isso importa pra voce:
+
+  - Nao precisa de conta TradingView nem assinatura paga
+  - Nao precisa de chave de API da exchange (so leitura publica)
+  - Nao tem limite de simbolos (TradingView cobra por alerta)
+  - Funciona em qualquer exchange suportada pelo CCXT (~100)
+  - O painel roda 100% offline no seu Mac (so usa internet pra
+    baixar os candles)
+
+A funcao "Validar 1 simbolo" do painel existe exatamente pra
+voce conferir 1 par no TradingView e comparar os numeros com
+o que o bot calculou. Se baterem ate 4 casas decimais (e batem),
+pode confiar 100% que o bot replica o indicador original.
+
+
+================================================================
+PASSO 1 - INSTALAR O PYTHON 3 (uma vez so)
+================================================================
+
+Mac ja vem com um Python antigo de fabrica, mas precisamos do
+Python 3 atualizado. Recomendo o instalador oficial.
+
+OPCAO A - Instalador oficial (recomendado, sem terminal)
+--------------------------------------------------------
+
+1.1) Abra o Safari ou Chrome e va em:
+
+         https://www.python.org/downloads/macos/
+
+1.2) Clique em "Download macOS 64-bit universal2 installer"
+     (ou o link grande na parte de cima da pagina)
+
+1.3) Aguarde o download (uns 30 MB).
+
+1.4) Abra o arquivo .pkg baixado e siga o instalador clicando
+     em Continuar > Continuar > Aceitar > Instalar. Vai pedir
+     a senha do seu Mac uma vez.
+
+1.5) No final, clique em Fechar.
+
+
+OPCAO B - Pelo Homebrew (se voce ja usa terminal)
+-------------------------------------------------
+
+No Terminal:
+
+    brew install python3
+
+
+----------------------------------------------------------------
+COMO CONFIRMAR QUE INSTALOU CERTO
+----------------------------------------------------------------
+
+  1) Abra o Terminal (Spotlight: Cmd+Espaco, digite "Terminal", Enter)
+  2) Digite:
+
+         python3 --version
+
+  3) Aperte Enter.
+
+  Resultado esperado: algo como  Python 3.13.0  (ou mais novo).
+
+  Se aparecer isso, fechado. Pode fechar o Terminal.
+
+
+================================================================
+PASSO 2 - PRIMEIRA EXECUCAO DO PAINEL
+================================================================
+
+2.1) Abra o Terminal e navegue ate a pasta. Exemplo se voce
+     deixou em Documentos:
+
+         cd ~/Documents/Bot-binance-painel
+
+2.2) Rode o launcher:
+
+         ./painel.sh
+
+     IMPORTANTE: o ./ na frente e obrigatorio. Sem ele o
+     terminal nao acha o arquivo.
+
+2.3) Na PRIMEIRA vez ele faz o setup automatico (1 a 3 min):
+
+         [setup] Criando ambiente virtual...
+         [setup] Instalando dependencias (pode demorar 2-3 min...
+
+     Espera. Esta baixando ccxt, pandas e streamlit.
+
+2.4) Quando terminar, voce ve:
+
+         You can now view your Streamlit app in your browser.
+         Local URL: http://localhost:8501
+
+2.5) Em ~3 segundos o navegador abre sozinho na pagina do
+     painel. Se nao abrir, copia o endereco http://localhost:8501
+     e cola na barra do Chrome/Safari.
+
+
+================================================================
+PASSO 3 - USANDO O PAINEL
+================================================================
+
+A tela tem duas areas:
+
+  ESQUERDA (sidebar): formulario de configuracao
+  DIREITA (centro):   botao de rodar e resultado
+
+Fluxo basico:
+
+  1) Confira a config no topo da sidebar (exchange, timeframe,
+     RSI, MA, volume).
+
+  2) Se quiser mudar algo:
+     - Edite o campo
+     - Role ate o final da sidebar
+     - Clique em "Salvar configuracao"
+     - A linha "Config ativa" no topo da pagina atualiza
+
+  3) Clique no botao laranja "Rodar varredura" no topo do centro.
+
+  4) Aparece uma barra de progresso (X/Y pares, sinais, erros).
+     Demora 2-3 minutos numa exchange grande tipo Binance.
+
+  5) Quando termina, aparece a secao "Ultima varredura" com:
+     - Metricas: pares varridos, sinais encontrados, erros, tempo
+     - Status BTC (BULLISH/BEARISH e estrutura ASCENDENTE/DESCENDENTE)
+     - Tabela com os pares que dispararam sinal, ordenada por
+       distancia da media. Da pra clicar nos cabecalhos pra
+       reordenar.
+
+  6) Tudo que aparece e tambem salvo em sinais.txt na pasta.
+     O expansor "Historico (sinais.txt)" mostra todas as
+     varreduras anteriores.
+
+
+================================================================
+VALIDAR 1 SIMBOLO ESPECIFICO (CRUZAR COM TRADINGVIEW)
+================================================================
+
+No topo do painel tem o campo "Validar 1 simbolo". Util pra
+conferir 1 par de cada vez sem rodar a varredura inteira, e
+pra cruzar a matematica com o TradingView.
+
+  1) Digite o par (ex: BTCUSDT, ETHUSDT, SOLUSDT)
+  2) Clique em "Validar simbolo"
+  3) Aparecem cards com RSI, MA, close (com distancia), vol change
+
+Compare esses numeros com o Data Window do TradingView no mesmo
+par e timeframe (atalho Alt+D no TV). Eles devem bater ate 4
+casas decimais. Se baterem, voce confirmou que o bot calcula
+exatamente a mesma coisa que o indicador Pine "Setup Compra".
+
+
+================================================================
+PARANDO O PAINEL
+================================================================
+
+No Terminal onde voce rodou ./painel.sh, aperte:
+
+         Ctrl + C
+
+(o Ctrl mesmo, nao o Cmd). O servidor para. Pode fechar o
+navegador depois.
+
+
+================================================================
+NAS PROXIMAS VEZES
+================================================================
+
+Sempre que quiser usar:
+
+  1) Abrir Terminal
+  2) cd ~/Documents/Bot-binance-painel
+  3) ./painel.sh
+
+A instalacao das bibliotecas nao se repete - sobe em ~5 segundos.
+
+
+================================================================
+TROCAR DE CORRETORA E AJUSTAR PARAMETROS
+================================================================
+
+Tudo e feito pelo painel:
+
+  TROCAR EXCHANGE
+       Sidebar > "Exchange (ccxt id)" > digite o nome
+       Suportadas: binance, bybit, okx, gate, kucoin, mexc,
+       bitget, kraken, bingx, htx, coinbase, e mais.
+       Lista completa: https://github.com/ccxt/ccxt#supported-exchanges
+
+  TROCAR QUOTE ASSET
+       Sidebar > "Quote asset" > USDT, USDC ou ALL
+
+  TROCAR TIMEFRAME
+       Sidebar > "Timeframe"
+       Opcoes: 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1M
+
+  AJUSTAR RSI
+       Sidebar > campos "Periodo RSI", "RSI minimo", "RSI maximo"
+
+  TROCAR TIPO E PERIODO DA MEDIA
+       Sidebar > "Media movel" > Tipo (EMA ou SMA) e Periodo MA
+
+  MUDAR TOLERANCIA DE DISTANCIA DA MEDIA
+       Sidebar > "Distancia +/- % do close ate a MA"
+
+  AJUSTAR VOLUME
+       Sidebar > "Periodo SMA do volume" e min/max
+
+  CONFIGURAR FILTRO BTC
+       Sidebar > secao "Filtro BTC"
+
+Sempre clique em "Salvar configuracao" no fim da sidebar pra
+aplicar. Depois clique em "Rodar varredura".
+
+
+================================================================
+USAR PELO TERMINAL (SEM PAINEL)
+================================================================
+
+Se quiser rodar a versao linha-de-comando original:
+
+         ./run.sh                    # 1 varredura, sai
+         ./run.sh --loop             # roda continuo a cada barra
+         ./run.sh --validate BTCUSDT # debug 1 simbolo
+
+Os dois (painel e CLI) compartilham o mesmo config.json e o
+mesmo sinais.txt.
+
+
+================================================================
+PROBLEMAS COMUNS
+================================================================
+
+PROBLEMA: ./painel.sh: Permission denied
+  CAUSA:   O arquivo perdeu a permissao de execucao
+  SOLUCAO: chmod +x painel.sh
+           Depois ./painel.sh de novo
+
+
+PROBLEMA: command not found: python3
+  CAUSA:   Python 3 nao instalado, ou nao no PATH
+  SOLUCAO: Refaz o passo 1 (instalador oficial python.org)
+
+
+PROBLEMA: Janela do navegador nao abre sozinha
+  SOLUCAO: Abra o Chrome/Safari manualmente e digite na barra:
+           http://localhost:8501
+
+
+PROBLEMA: Pagina aparece em branco ou da erro de conexao
+  CAUSA:   O servidor ainda nao subiu, ou foi fechado
+  SOLUCAO: Olhe a janela do Terminal. Se aparecer "You can now
+           view your Streamlit app", da F5 na pagina. Se a
+           janela estiver fechada, ./painel.sh de novo.
+
+
+PROBLEMA: "RateLimitExceeded" durante a varredura
+  CAUSA:   Bot rapido demais pra exchange
+  SOLUCAO: Sidebar > "Avancado" > aumente "Delay entre requests"
+           de 200 para 400 ou 500. Salve e rode de novo.
+
+
+PROBLEMA: Quero parar uma varredura no meio
+  SOLUCAO: Nao da pra cancelar pelo painel sem fechar a aba.
+           Feche a aba do navegador OU Ctrl+C no Terminal.
+           Os sinais ja encontrados ate ali nao sao salvos
+           (so salva no fim).
+
+
+PROBLEMA: O Mac avisa que ./painel.sh e "perigoso"
+  CAUSA:   macOS Gatekeeper desconfia de scripts da internet
+  SOLUCAO: Em vez de duplo clique, sempre rode pelo Terminal
+           (cd na pasta + ./painel.sh). O Gatekeeper nao
+           bloqueia nessa via.
+
+
+================================================================
+ARQUIVOS DA PASTA
+================================================================
+
+painel.py          -> codigo do painel Streamlit (nao editar)
+painel.sh          -> launcher Mac/Linux (use este)
+painel.bat         -> launcher Windows (ignora no Mac)
+bot.py             -> codigo do bot (nao editar)
+config.json        -> parametros (o painel edita pra voce)
+sinais.txt         -> historico de relatorios (gerado automatico)
+bot.log/erros.log  -> logs (gerados automatico)
+README.txt         -> introducao geral
+MANUAL_MAC.txt     -> este arquivo
+MANUAL_WINDOWS.txt -> manual da versao Windows
+DEBUG.md           -> guia de erros e diagnostico
+.venv/             -> ambiente Python isolado (gerado na 1a execucao)
+
+
+================================================================
+SEGURANCA
+================================================================
+
+O bot:
+  - NAO conecta na sua conta de exchange
+  - NAO precisa de senha, chave de API, login
+  - NAO compra, NAO vende, NAO movimenta dinheiro
+  - So LE preco publico de candles
+
+O painel roda 100% local na sua maquina (localhost). Ninguem
+de fora acessa. Sem internet, ele so nao consegue baixar os
+candles novos - mas o painel abre normalmente.
+
+
+================================================================
+PRECISA DE AJUDA?
+================================================================
+
+Mande pro responsavel (Davidson):
+  1) Print da janela do Terminal com a mensagem de erro
+  2) Print do painel se for problema visual
+  3) Conteudo de erros.log (na pasta) se for erro durante varredura

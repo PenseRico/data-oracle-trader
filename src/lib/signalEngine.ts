@@ -43,7 +43,10 @@ export interface SignalIndicators {
   bb: { middle: number; upper: number; lower: number };
   ma10: number;
   ma20: number;
+  ma50: number;
   ma80: number;
+  ma100: number;
+  ma200: number;
   fib: Record<number, number>;
   multiRsi?: Record<string, number>;
   fundingRate?: number;
@@ -57,10 +60,15 @@ export interface EnrichedCoin extends CoinGeckoMarket {
   bb: { middle: number; upper: number; lower: number };
   ma10: number;
   ma20: number;
+  ma50: number;
   ma80: number;
+  ma100: number;
+  ma200: number;
   indicators: SignalIndicators;
   signal: SignalScore;
   volumeRatio: number;
+  shortTerm?: SetupEvaluation;
+  longTerm?: SetupEvaluation;
 }
 
 function classifyScore(score: number): Pick<SignalScore, "classification" | "label" | "emoji"> {
@@ -283,21 +291,155 @@ export function enrichCoins(
       bb: calculateBollingerBands(prices),
       ma10: calculateSMA(prices, 10),
       ma20: calculateSMA(prices, 20),
+      ma50: calculateSMA(prices, 50),
       ma80: calculateSMA(prices, 80),
+      ma100: calculateSMA(prices, 100),
+      ma200: calculateSMA(prices, 200),
       fib: calculateFibonacci(prices),
       multiRsi: multiRsi,
       fundingRate: derivative?.fundingRate,
       openInterest: derivative?.openInterest,
     };
 
-    return {
+    const enriched = {
       ...coin,
       ...indicators,
       indicators,
       volumeRatio: coin.total_volume / coin.market_cap,
       signal: calculateSignalScore(coin, fearGreedValue, multiRsi, derivative?.fundingRate),
+    } as EnrichedCoin;
+
+    return {
+      ...enriched,
+      shortTerm: evaluateShortTermSetup(enriched),
+      longTerm: evaluateLongTermSetup(enriched),
     };
   });
+}
+
+export interface SetupEvaluation {
+  isActive: boolean;
+  type: "BUY" | "SELL" | "NEUTRAL";
+  confidence: number; // 0-100
+  reasons: string[];
+}
+
+export function evaluateShortTermSetup(coin: EnrichedCoin): SetupEvaluation {
+  let confidence = 0;
+  const reasons: string[] = [];
+  const price = coin.current_price;
+  
+  // Condições de Compra Curto Prazo (Scalp/Day)
+  // Tendência principal intradiária (MA80) precisa ser de alta para comprar com segurança
+  const isUptrend = coin.ma20 > coin.ma80;
+  
+  if (isUptrend && price > coin.ma80) {
+    // Pullback opportunity (preço testa MA10 ou MA20)
+    if (price <= coin.ma10 * 1.01 && price >= coin.ma20 * 0.99) {
+      confidence += 40;
+      reasons.push("Preço tocando a zona de compra entre MA10 e MA20 (Pullback intradiário).");
+    }
+    
+    // RSI Filters
+    if (coin.indicators.rsi < 40) {
+      confidence += 30;
+      reasons.push("RSI baixo durante tendência de alta (Excelente ponto de entrada).");
+    }
+    
+    // Histograma MACD
+    if (coin.indicators.macd.histogram > 0) {
+      confidence += 15;
+      reasons.push("MACD Histograma revelando retomada de força compradora.");
+    }
+    
+    // Filtro temporal curto (se disponível 15m)
+    if (coin.indicators.multiRsi?.["15m"] !== undefined && coin.indicators.multiRsi["15m"] < 35) {
+      confidence += 15;
+      reasons.push("Exaustão em 15m detectada, confluência para reversão rápida.");
+    }
+  }
+
+  // Condições de Venda Curto Prazo (Short/Scalp)
+  const isDowntrend = coin.ma20 < coin.ma80;
+  if (!isUptrend && isDowntrend && price < coin.ma80) {
+    if (price >= coin.ma10 * 0.99 && price <= coin.ma20 * 1.01) {
+      confidence += 40;
+      reasons.push("Pullback de venda na zona da MA10-MA20 (Short seguro).");
+    }
+    if (coin.indicators.rsi > 60) {
+      confidence += 30;
+      reasons.push("RSI esticado num ciclo de baixa intradiário.");
+    }
+    if (coin.indicators.macd.histogram < 0) {
+      confidence += 15;
+      reasons.push("MACD Histograma intensificando força vendedora.");
+    }
+    if (coin.indicators.multiRsi?.["15m"] !== undefined && coin.indicators.multiRsi["15m"] > 65) {
+      confidence += 15;
+      reasons.push("Euforia em 15m detectada, topo iminente.");
+    }
+    
+    if (confidence >= 55) {
+      return { isActive: true, type: "SELL", confidence, reasons };
+    }
+  }
+
+  if (confidence >= 55) {
+    return { isActive: true, type: "BUY", confidence, reasons };
+  }
+
+  return { isActive: false, type: "NEUTRAL", confidence: 0, reasons: ["Ativo lateralizado ou fora das zonas ótimas de scalp."] };
+}
+
+export function evaluateLongTermSetup(coin: EnrichedCoin): SetupEvaluation {
+  let confidence = 0;
+  const reasons: string[] = [];
+  const price = coin.current_price;
+
+  // Condições Swing / Holder
+  const macroUptrend = coin.ma50 > coin.ma200;
+  
+  if (macroUptrend) {
+    // Acumulação na MA100 ou MA200
+    if (price <= coin.ma100 * 1.05 && price >= coin.ma200 * 0.95) {
+      confidence += 50;
+      reasons.push("Preço corrigiu para a zona de suporte vital (MA100 - MA200). Setup clássico institucional.");
+    }
+    
+    // RSI Diário
+    if (coin.indicators.rsi < 35) {
+      confidence += 30;
+      reasons.push("RSI Diário em sobrevenda durante uma Macro Tendência de Alta.");
+    }
+    
+    // Fib Retracement
+    if (price <= coin.indicators.fib[0.618] * 1.05 && price >= coin.indicators.fib[0.618] * 0.95) {
+      confidence += 20;
+      reasons.push("Preço atingiu a Retração de Ouro (Golden Pocket 0.618).");
+    }
+  }
+
+  // Short Swing / Fundo Perdido
+  if (!macroUptrend) {
+    if (price >= coin.ma50 * 0.95 && price <= coin.ma100 * 1.05) {
+      confidence += 50;
+      reasons.push("Reteste da MA50/MA100 como resistência. Ponto de distribuição massiva.");
+    }
+    if (coin.indicators.rsi > 65) {
+      confidence += 30;
+      reasons.push("RSI Diário mostra euforia em mercado urso (Bear Market Rally).");
+    }
+    
+    if (confidence >= 65) {
+      return { isActive: true, type: "SELL", confidence, reasons };
+    }
+  }
+
+  if (confidence >= 65) {
+    return { isActive: true, type: "BUY", confidence, reasons };
+  }
+
+  return { isActive: false, type: "NEUTRAL", confidence: 0, reasons: ["Mercado oscilando no meio do canal sem assimetria de risco/retorno favorável."] };
 }
 
 export function getClassColor(classification: SignalScore["classification"]): string {

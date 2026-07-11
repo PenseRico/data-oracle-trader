@@ -1,0 +1,28 @@
+{
+  "exchange": "binance",
+  "quote_filter": "USDT",
+  "timeframe": "4h",
+  "rsi": {
+    "length": 14,
+    "min": 40.0,
+    "max": 57.0
+  },
+  "ma": {
+    "type": "EMA",
+    "length": 80
+  },
+  "distance_pct": 2.0,
+  "volume": {
+    "length": 20,
+    "min": 0.0,
+    "max": 500.0
+  },
+  "btc": {
+    "symbol": "BTC/USDT",
+    "timeframe": "1d",
+    "ma_length": 20,
+    "ma_type": "EMA"
+  },
+  "fetch_limit": 200,
+  "request_delay_ms": 200
+}

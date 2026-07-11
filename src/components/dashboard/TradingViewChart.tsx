@@ -1,81 +1,107 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, useCallback } from 'react';
+
+export type TVInterval = '1' | '5' | '15' | '30' | '60' | '240' | 'D' | 'W';
+export type TVStyle = '1' | '2' | '3' | '8' | '9'; // Candle, Bar, Line, Heikin Ashi, Hollow Candle
 
 interface TradingViewChartProps {
-  symbol: string;
-  theme?: "dark" | "light";
+  symbol?: string;
+  interval?: TVInterval;
+  theme?: 'light' | 'dark';
   autosize?: boolean;
+  height?: number;
+  studies?: string[];
+  containerId?: string;
+  style?: TVStyle;
+  showDrawingToolbar?: boolean;
 }
 
-function TradingViewChart({ symbol, theme = "dark", autosize = true }: TradingViewChartProps) {
-  const container = useRef<HTMLDivElement>(null);
+let instanceCount = 0;
 
-  useEffect(() => {
-    // Clear previous widget
-    if (container.current) {
-      container.current.innerHTML = "";
+export default function TradingViewChart({
+  symbol = 'BINANCE:BTCUSDT',
+  interval = '60',
+  theme = 'dark',
+  autosize = true,
+  height = 600,
+  studies = [],
+  containerId,
+  style = '1',
+  showDrawingToolbar = false,
+}: TradingViewChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const containerIdRef = useRef<string>(containerId || `tv_chart_${++instanceCount}_${Date.now()}`);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+
+  const buildWidget = useCallback(() => {
+    if (!containerRef.current) return;
+
+    // Remove any old scripts injected in this container
+    if (scriptRef.current && containerRef.current.contains(scriptRef.current)) {
+      containerRef.current.removeChild(scriptRef.current);
     }
 
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
+    // The embed script reads its previous sibling (.tradingview-widget-container__widget)
+    // and injects the iframe there. Reset it before each rebuild so we don't stack iframes.
+    const widgetMount = containerRef.current.querySelector('.tradingview-widget-container__widget');
+    if (widgetMount) widgetMount.innerHTML = '';
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
     script.async = true;
 
-    // Formatting symbol for Binance (Standard convention)
-    let formattedSymbol = symbol.toUpperCase();
-    if (!formattedSymbol.includes(":")) {
-      const baseSymbol = formattedSymbol.endsWith("USDT") ? formattedSymbol : `${formattedSymbol}USDT`;
-      formattedSymbol = `BINANCE:${baseSymbol}`;
+    const config: Record<string, any> = {
+      autosize,
+      symbol,
+      interval,
+      timezone: 'America/Sao_Paulo',
+      theme,
+      style,
+      locale: 'br',
+      enable_publishing: false,
+      allow_symbol_change: true,
+      save_image: true,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      hide_side_toolbar: !showDrawingToolbar,
+      calendar: false,
+      hide_volume: false,
+      support_host: 'https://www.tradingview.com',
+    };
+
+    if (!autosize) {
+      config.height = height;
+      config.width = '100%';
     }
 
-    script.innerHTML = JSON.stringify({
-      "autosize": autosize,
-      "symbol": formattedSymbol,
-      "interval": "60",
-      "timezone": "America/Sao_Paulo",
-      "theme": theme,
-      "style": "1",
-      "locale": "br",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "calendar": false,
-      "support_host": "https://www.tradingview.com",
-      "hide_side_toolbar": false,
-      "container_id": "tradingview_chart_container",
-      "studies": [
-        "RSI@tv-basicstudies",
-        "MASimple@tv-basicstudies",
-        "MACD@tv-basicstudies"
-      ],
-      "overrides": {
-        "mainSeriesProperties.candleStyle.upColor": "#00f2fe",
-        "mainSeriesProperties.candleStyle.downColor": "#f43f5e",
-        "mainSeriesProperties.candleStyle.borderUpColor": "#00f2fe",
-        "mainSeriesProperties.candleStyle.borderDownColor": "#f43f5e",
-        "mainSeriesProperties.candleStyle.wickUpColor": "#00f2fe",
-        "mainSeriesProperties.candleStyle.wickDownColor": "#f43f5e"
-      }
-    });
-
-    if (container.current) {
-      container.current.appendChild(script);
+    if (studies.length > 0) {
+      config.studies = studies;
     }
-  }, [symbol, theme, autosize]);
+
+    script.innerHTML = JSON.stringify(config);
+    containerRef.current.appendChild(script);
+    scriptRef.current = script;
+  }, [symbol, interval, theme, autosize, height, studies, style, showDrawingToolbar]);
+
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const t = setTimeout(buildWidget, 50);
+    return () => {
+      clearTimeout(t);
+    };
+  }, [buildWidget]);
 
   return (
-    <div className="glass-card w-full h-[600px] border-primary/20 bg-black/40 overflow-hidden relative group">
-       <div className="absolute top-0 left-0 p-4 z-10 opacity-20 group-hover:opacity-100 transition-opacity">
-          <div className="flex items-center gap-2">
-             <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">Live Terminal View</span>
-          </div>
-       </div>
-       <div 
-         id="tradingview_chart_container" 
-         ref={container} 
-         className="w-full h-full"
-       />
+    <div
+      className="tradingview-widget-container w-full h-full"
+      ref={containerRef}
+      style={{ height: '100%', width: '100%' }}
+    >
+      <div
+        id={containerIdRef.current}
+        className="tradingview-widget-container__widget"
+        style={{ height: '100%', width: '100%' }}
+      />
     </div>
   );
 }
-
-export default memo(TradingViewChart);

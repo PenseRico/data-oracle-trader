@@ -53,7 +53,7 @@ export default function AuthPage() {
           <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
             <Zap className="h-6 w-6 text-primary" />
           </div>
-          <span className="font-display font-bold text-2xl text-foreground">Data Oracle Hub</span>
+          <span className="font-display font-black text-2xl text-foreground"><span className="text-primary">Matrix</span></span>
         </div>
 
         {/* Card */}

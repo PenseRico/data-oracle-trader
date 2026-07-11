@@ -1,6 +1,6 @@
 import { useState, useMemo, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowUpDown, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronUp, Info, Target } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatMarketCap } from "@/data/mockCoins";
 import { MiniSparkline } from "./MiniSparkline";
+import { InfoHint } from "./InfoHint";
 import { EnrichedCoin, getClassBg, getClassColor } from "@/lib/signalEngine";
 
 interface SignalEngineTableProps {
@@ -85,19 +86,27 @@ export function SignalEngineTable({ coins, title, isLoading, onSelect }: SignalE
     <div className="space-y-4">
       {title && <h2 className="font-display font-bold text-lg">{title}</h2>}
 
-      <div className="glass-card rounded-lg overflow-x-auto scrollbar-hide">
-        <Table className="min-w-[800px]">
+      <div className="glass-card rounded-lg overflow-hidden">
+        <Table>
           <TableHeader>
             <TableRow className="border-border/30 hover:bg-transparent">
               <TableHead className="w-10 text-xs">#</TableHead>
               <TableHead className="text-xs">Moeda</TableHead>
-              <TableHead className="text-xs text-center"><SortHeader field="score">Score</SortHeader></TableHead>
+              <TableHead className="text-xs text-center">
+                <div className="flex items-center justify-center gap-1"><SortHeader field="score">Score</SortHeader><InfoHint id="confluencia" /></div>
+              </TableHead>
               <TableHead className="text-xs text-center">Sinal</TableHead>
               <TableHead className="text-xs text-right"><SortHeader field="price">Preço</SortHeader></TableHead>
               <TableHead className="text-xs text-right hidden md:table-cell"><SortHeader field="change24h">24h</SortHeader></TableHead>
-              <TableHead className="text-xs text-center"><SortHeader field="rsi">RSI</SortHeader></TableHead>
-              <TableHead className="text-xs text-center hidden md:table-cell">MAs</TableHead>
-              <TableHead className="text-xs text-center hidden lg:table-cell">Fib / BB</TableHead>
+              <TableHead className="text-xs text-center">
+                <div className="flex items-center justify-center gap-1"><SortHeader field="rsi">RSI</SortHeader><InfoHint id="rsi" /></div>
+              </TableHead>
+              <TableHead className="text-xs text-center hidden md:table-cell">
+                <div className="flex items-center justify-center gap-1">MAs<InfoHint id="movingAverages" /></div>
+              </TableHead>
+              <TableHead className="text-xs text-center hidden lg:table-cell">
+                <div className="flex items-center justify-center gap-1">Fib / BB<InfoHint id="fibonacci" /></div>
+              </TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell"><SortHeader field="volume">Volume</SortHeader></TableHead>
               <TableHead className="text-xs text-right hidden lg:table-cell w-24">7D</TableHead>
               <TableHead className="text-xs w-8"></TableHead>
@@ -219,33 +228,74 @@ export function SignalEngineTable({ coins, title, isLoading, onSelect }: SignalE
                       </TableRow>
 
                       {isExpanded && (
-                        <TableRow className="border-border/10 bg-card/30">
-                          <TableCell colSpan={11} className="p-4">
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                <Info className="h-3 w-3" />
-                                Análise de Confluência — Nível: <span className="text-primary font-bold">{s.confluence}</span>
-                              </div>
-                              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                {(["momentum", "trend", "volatility", "volume", "sentiment"] as const).map((cat) => (
-                                  <div key={cat} className="glass-card rounded-lg p-3 space-y-1">
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{cat}</span>
-                                    <div className={`text-lg font-mono font-bold ${s.breakdown[cat] > 0 ? "text-primary" : s.breakdown[cat] < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                                      {s.breakdown[cat] > 0 ? "+" : ""}{s.breakdown[cat]}
+                        <TableRow className="border-border/10">
+                          <TableCell colSpan={11} className="p-0">
+                            <div className="bg-black/60 border-y border-white/5 p-5 animate-fade-in">
+                              <div className="flex flex-col xl:flex-row gap-6">
+                                {/* Left side: Score Breakdown Visual */}
+                                <div className="xl:w-1/3 space-y-4">
+                                  <div className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-4">
+                                    <Info className="h-3.5 w-3.5 text-primary" /> Confluência de Sinal
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {(["momentum", "trend", "volatility", "volume", "sentiment"] as const).map((cat) => {
+                                      const val = s.breakdown[cat];
+                                      const isPos = val > 0;
+                                      const isNeg = val < 0;
+                                      const pct = Math.abs(val) / 4 * 100; // max ~4 per category
+                                      return (
+                                        <div key={cat} className="space-y-1.5 p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{cat}</span>
+                                            <span className={`text-[10px] font-mono font-bold ${isPos ? "text-primary" : isNeg ? "text-destructive" : "text-muted-foreground"}`}>
+                                              {isPos ? "+" : ""}{val}
+                                            </span>
+                                          </div>
+                                          <div className="h-1 bg-white/5 rounded-full overflow-hidden flex">
+                                            {isPos ? (
+                                              <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+                                            ) : isNeg ? (
+                                              <div className="h-full bg-destructive" style={{ width: `${pct}%`, marginLeft: "auto" }} />
+                                            ) : (
+                                              <div className="h-full w-full bg-muted-foreground/20" />
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                    <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 flex flex-col justify-center items-center">
+                                       <span className="text-[8px] uppercase tracking-widest text-primary/60 mb-1">Status Final</span>
+                                       <span className="text-[11px] font-black uppercase text-primary tracking-widest">{s.confluence}</span>
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                              <div className="space-y-1.5">
-                                {s.reasons.map((r, i) => (
-                                  <div key={i} className="flex items-center gap-2 text-xs">
-                                    <span className={`font-mono font-bold w-8 text-right ${r.points > 0 ? "text-primary" : r.points < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                                      {r.points > 0 ? "+" : ""}{r.points}
-                                    </span>
-                                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-border/50">{r.factor}</Badge>
-                                    <span className="text-muted-foreground">{r.description}</span>
+                                </div>
+
+                                {/* Right side: Drivers / Triggers */}
+                                <div className="flex-1 space-y-4 xl:pl-6 xl:border-l border-white/5">
+                                  <div className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-4">
+                                    <Target className="h-3.5 w-3.5 text-primary" /> Gatilhos de Ação (Drivers)
                                   </div>
-                                ))}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {s.reasons.map((r, i) => {
+                                      const isBull = r.points > 0;
+                                      return (
+                                        <div key={i} className="flex gap-3 p-3 rounded-lg border border-white/5 bg-white/[0.01]">
+                                          <div className={`mt-0.5 h-4 w-4 shrink-0 rounded flex items-center justify-center font-black font-mono text-[9px] ${isBull ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"}`}>
+                                            {isBull ? "+" : ""}{r.points}
+                                          </div>
+                                          <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <Badge variant="outline" className="text-[8px] h-3.5 px-1 py-0 uppercase border-white/10 font-mono tracking-widest">{r.factor}</Badge>
+                                            </div>
+                                            <p className="text-[10px] text-muted-foreground/80 leading-relaxed font-mono">
+                                              {r.description.replace(/^O /, "").replace(/^A /, "").replace(/^Os /, "")}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </TableCell>
