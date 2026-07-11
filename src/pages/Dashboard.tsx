@@ -1,5 +1,6 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MarketOverviewTerminal } from "@/components/dashboard/MarketOverviewTerminal";
+import { HomeHero } from "@/components/dashboard/HomeHero";
 import { SignalEngineTable } from "@/components/dashboard/SignalEngineTable";
 import { RsiHeatmap } from "@/components/dashboard/RsiHeatmap";
 import { NewsPanel } from "@/components/dashboard/NewsPanel";
@@ -85,6 +86,9 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
         ================================ */}
         {activeTab === "overview" && (
           <div className="flex flex-col gap-6 w-full">
+
+            {/* HERO — gráfico BTC + índices visuais + principais mercados/volume (topo da primeira tela) */}
+            <HomeHero />
 
             {/* 0. PLANOS DE TRADE PRONTOS — a entrega: compra/venda mastigados (entrada, alvo, stop) */}
             {tradePlans.length > 0 && (
