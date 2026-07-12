@@ -111,7 +111,7 @@ export default function Dashboard({ initialTab = "overview" }: DashboardProps) {
             )}
 
             {/* 1. Visão de Mercado — terminal denso (regime, macro, movers, desempenho, altseason) */}
-            <MarketOverviewTerminal fearGreed={fearGreedValue} />
+            <MarketOverviewTerminal />
 
             {/* Crypto Bubbles — visão rápida do mercado (tamanho=mcap, cor=24h) */}
             <CryptoBubbles />

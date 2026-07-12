@@ -15,7 +15,7 @@ const SYMBOLS = [
   { label: "DOGE/USDT", value: "BINANCE:DOGEUSDT", color: "#fb923c" },
   { label: "ADA/USDT", value: "BINANCE:ADAUSDT", color: "#60a5fa" },
   { label: "AVAX/USDT", value: "BINANCE:AVAXUSDT", color: "#f87171" },
-  { label: "DXY", value: "TVC:DXY", color: "#cbd5e1" },
+  { label: "DXY", value: "CAPITALCOM:DXY", color: "#cbd5e1" },
   { label: "S&P 500", value: "FOREXCOM:SPXUSD", color: "#86efac" },
   { label: "TOTAL2", value: "CRYPTOCAP:TOTAL2", color: "#e879f9" },
   { label: "BTC.D", value: "CRYPTOCAP:BTC.D", color: "#fbbf24" },

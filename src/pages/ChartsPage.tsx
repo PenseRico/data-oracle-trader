@@ -7,7 +7,7 @@ import { BarChart2, Layers, ChevronRight } from "lucide-react";
 type ViewMode = "grid" | "single";
 
 export const CHART_ASSETS = [
-  { id: "dxy",    label: "Dólar (DXY)",  symbol: "TVC:DXY",          color: "#22d3ee", desc: "Índice do Dólar Americano" },
+  { id: "dxy",    label: "Dólar (DXY)",  symbol: "CAPITALCOM:DXY",   color: "#22d3ee", desc: "Índice do Dólar Americano" },
   { id: "btc",    label: "Bitcoin",       symbol: "BINANCE:BTCUSDT",  color: "#f59e0b", desc: "BTC / USDT" },
   { id: "eth",    label: "Ethereum",      symbol: "BINANCE:ETHUSDT",  color: "#818cf8", desc: "ETH / USDT" },
   { id: "sp500",  label: "S&P 500",       symbol: "FOREXCOM:SPXUSD",  color: "#34d399", desc: "S&P 500 Index" },
