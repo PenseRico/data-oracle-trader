@@ -99,6 +99,11 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     what: "Posições alavancadas fechadas à força quando o preço vai contra elas.",
     how: "Muitos LONGS liquidados = queda exagerada (possível fundo). Muitos SHORTS liquidados = alta exagerada (possível topo).",
   },
+  funding: {
+    term: "Funding Rate",
+    what: "Taxa paga entre comprados e vendidos nos futuros perpétuos, a cada 8h.",
+    how: "Positivo = maioria comprada pagando (euforia, risco de correção). Negativo = maioria vendida pagando (combustível pra squeeze de alta).",
+  },
   // ── Motor de sinais MTF ──
   mtfConfluence: {
     term: "Confluência Multi-Timeframe",
