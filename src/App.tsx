@@ -17,7 +17,6 @@ import SellSignals from "./pages/SellSignals.tsx";
 import CommunityPage from "./pages/CommunityPage.tsx";
 import AlertsPage from "./pages/AlertsPage.tsx";
 import AcademyPage from "./pages/AcademyPage.tsx";
-import MonitorPage from "./pages/MonitorPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import LiquidityPage from "./pages/LiquidityPage.tsx";
 import LeveragePage from "./pages/LeveragePage.tsx";
@@ -67,7 +66,6 @@ const App = () => (
             <Route path="/dashboard/orderbook" element={<ProtectedDashboard><OrderBookPage /></ProtectedDashboard>} />
             <Route path="/dashboard/leverage" element={<ProtectedDashboard><LeveragePage /></ProtectedDashboard>} />
             <Route path="/dashboard/market" element={<ProtectedDashboard><MarketPage /></ProtectedDashboard>} />
-            <Route path="/dashboard/monitor" element={<ProtectedDashboard><MonitorPage /></ProtectedDashboard>} />
             <Route path="/dashboard/charts" element={<ProtectedDashboard><ChartsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/buy-signals" element={<ProtectedDashboard><ProGate feature="Os Sinais de Compra"><BuySignals /></ProGate></ProtectedDashboard>} />
             <Route path="/dashboard/sell-signals" element={<ProtectedDashboard><ProGate feature="Os Sinais de Venda"><SellSignals /></ProGate></ProtectedDashboard>} />

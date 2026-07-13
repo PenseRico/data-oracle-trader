@@ -2,8 +2,9 @@ import {
   BarChart3, TrendingUp, TrendingDown, Activity, Filter,
   LayoutDashboard, LineChart, Newspaper, MessageSquare,
   Zap, Target, ArrowLeftRight, BookOpen, Monitor, User, Calculator,
-  Globe2, Eye, MapPin, Link2, Crosshair, Bot, Flame, Wallet,
+  Globe2, MapPin, Link2, Crosshair, Bot, Flame, Wallet,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { usePlan, setPlan } from "@/lib/plan";
@@ -13,7 +14,9 @@ import {
   SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 
-const mainItems = [
+interface NavItem { title: string; url: string; icon: LucideIcon; soon?: boolean; }
+
+const mainItems: NavItem[] = [
   { title: "Terminal de Comando", url: "/dashboard", icon: LayoutDashboard },
   { title: "Minha Carteira", url: "/dashboard/carteira", icon: Wallet },
   { title: "Market Matrix", url: "/dashboard/market", icon: Globe2 },
@@ -26,7 +29,7 @@ const mainItems = [
   { title: "Simulador de Risco", url: "/dashboard/leverage", icon: Calculator },
 ];
 
-const filterItems = [
+const filterItems: NavItem[] = [
   { title: "Bot Swing Trade", url: "/dashboard/bot", icon: Bot },
   { title: "Bot Scalping", url: "/dashboard/scalp", icon: Flame },
   { title: "Central de Sinais (MTF RSI)", url: "/dashboard/central", icon: Crosshair },
@@ -37,12 +40,11 @@ const filterItems = [
   { title: "Setup Longo Prazo (Swing)", url: "/dashboard/long-term", icon: Zap },
 ];
 
-const toolItems = [
-  { title: "Monitor", url: "/dashboard/monitor", icon: Eye },
+const toolItems: NavItem[] = [
   { title: "Alertas", url: "/dashboard/alerts", icon: Zap },
   { title: "Terminal Notícias", url: "/dashboard/news", icon: Newspaper },
   { title: "Mesa de Operações", url: "/dashboard/community", icon: MessageSquare },
-  { title: "Formação Academy", url: "/dashboard/academy", icon: BookOpen },
+  { title: "Formação Academy", url: "/dashboard/academy", icon: BookOpen, soon: true },
   { title: "Perfil Analista", url: "/dashboard/profile", icon: User },
 ];
 
@@ -53,7 +55,7 @@ export function DashboardSidebar() {
   const plan = usePlan();
   const isActive = (path: string) => location.pathname === path;
 
-  const renderGroup = (label: string, items: typeof mainItems, icon?: React.ReactNode) => (
+  const renderGroup = (label: string, items: NavItem[], icon?: React.ReactNode) => (
     <SidebarGroup>
       <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground/60">
         {icon}{label}
@@ -62,12 +64,24 @@ export function DashboardSidebar() {
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.url}>
-              <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                <NavLink to={item.url} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-accent text-primary font-medium">
+              {item.soon ? (
+                <div className="flex items-center gap-2 rounded-md px-2 py-1.5 opacity-40 cursor-not-allowed select-none" title="Em breve">
                   <item.icon className="h-4 w-4" />
-                  {!collapsed && <span>{item.title}</span>}
-                </NavLink>
-              </SidebarMenuButton>
+                  {!collapsed && <span className="text-sm">{item.title}</span>}
+                  {!collapsed && (
+                    <span className="ml-auto text-[8px] font-mono uppercase tracking-widest rounded bg-white/5 px-1 py-0.5 text-muted-foreground/60">
+                      em breve
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                  <NavLink to={item.url} className="hover:bg-sidebar-accent/50" activeClassName="bg-sidebar-accent text-primary font-medium">
+                    <item.icon className="h-4 w-4" />
+                    {!collapsed && <span>{item.title}</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
