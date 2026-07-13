@@ -9,7 +9,7 @@ import { useFuturesSnapshot } from "@/lib/api/futures";
 import { useMarkets } from "@/lib/api/coingecko";
 import { computeLiquidationZones, buildLiquidityReport } from "@/lib/liquidationZones";
 import { formatMarketCap } from "@/data/mockCoins";
-import { Target, Zap, Scale, Maximize2, TrendingDown, TrendingUp, Percent, Layers, FileText } from "lucide-react";
+import { Target, Zap, Scale, Maximize2, TrendingDown, TrendingUp, Percent, Layers, FileText, Flame } from "lucide-react";
 
 const SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE"];
 
@@ -201,7 +201,36 @@ export default function LiquidityPage() {
           <p className="text-[10px] text-muted-foreground/70 leading-relaxed italic px-1 max-w-3xl">
             As <span className="text-white/80">zonas acima</span> são o cálculo de onde cada alavancagem quebra (parede de baixo = longs/suporte,
             parede de cima = shorts/resistência). O heatmap abaixo mostra as liquidações que <span className="text-white/80">de fato aconteceram</span> ao vivo
-            na Binance Futures. Pra o mapa de níveis completo agregando todas as exchanges, use os links da CoinGlass/Coinank.
+            na Binance Futures. Logo abaixo, o mapa de níveis completo da CoinGlass.
+          </p>
+        </section>
+
+        {/* Mapa de NÍVEIS completo — Coinglass embutido (Coinank bloqueia iframe → só link) */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Flame className="h-4 w-4 text-amber-400" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-white">Mapa de Níveis Completo · CoinGlass</h3>
+            </div>
+            <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-mono">
+              <a href="https://www.coinglass.com/pro/futures/LiquidationHeatMapNew" target="_blank" rel="noopener noreferrer" className="rounded-md border border-primary/30 bg-primary/10 text-primary px-2.5 py-1 hover:bg-primary/20 transition-colors">CoinGlass ↗</a>
+              <a href="https://coinank.com/liqHeatMap" target="_blank" rel="noopener noreferrer" className="rounded-md border border-white/10 bg-black/30 text-muted-foreground/70 px-2.5 py-1 hover:text-white transition-colors">Coinank ↗</a>
+            </div>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-black/40" style={{ height: 700 }}>
+            <iframe
+              src="https://www.coinglass.com/pro/futures/LiquidationHeatMapNew"
+              title="CoinGlass Liquidation Heatmap"
+              className="w-full h-full"
+              style={{ border: "none" }}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground/60 leading-relaxed italic px-1 max-w-3xl">
+            Heatmap de níveis agregando todas as exchanges, ao vivo da CoinGlass. Se o quadro ficar em branco, é bloqueio de
+            segurança da própria CoinGlass — use o botão <span className="text-primary/80">CoinGlass ↗</span>. A Coinank não permite
+            embutir (bloqueio deles), então abre em nova aba pelo botão <span className="text-white/70">Coinank ↗</span>.
           </p>
         </section>
       </PageShell>
