@@ -27,11 +27,17 @@ export default function AuthPage() {
       if (isLogin) {
         await signIn(email, password);
         toast.success("Login realizado com sucesso!");
+        navigate("/dashboard");
       } else {
-        await signUp(email, password, username);
-        toast.success("Conta criada! Você já pode acessar.");
+        const { needsEmailConfirmation } = await signUp(email, password, username);
+        if (needsEmailConfirmation) {
+          toast.success("Conta criada! Confirme o e-mail que enviamos para entrar.");
+          setIsLogin(true);
+        } else {
+          toast.success("Conta criada! Você já pode acessar.");
+          navigate("/dashboard");
+        }
       }
-      navigate("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Erro na autenticação");
     } finally {

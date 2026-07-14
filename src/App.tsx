@@ -39,8 +39,8 @@ import ManualPage from "./pages/ManualPage.tsx";
 const queryClient = new QueryClient();
 
 function ProtectedDashboard({ children }: { children: React.ReactNode }) {
-  // Desativado por enquanto para permitir desenvolvimento em localhost
-  return <>{children}</>;
+  // Exige login. Depois de logar, o plano é "pro" por padrão (tudo liberado p/ testes).
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }
 
 const App = () => (

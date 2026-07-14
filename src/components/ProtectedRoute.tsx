@@ -12,7 +12,6 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Temporary bypass for testing
-  // if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
