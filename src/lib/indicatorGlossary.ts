@@ -12,9 +12,14 @@ export interface GlossaryEntry {
 export const GLOSSARY: Record<string, GlossaryEntry> = {
   // ── Sentimento / mercado ──
   fearGreed: {
-    term: "Medo & Ganância",
-    what: "Mede a emoção do mercado de 0 a 100, do pânico à euforia.",
+    term: "Medo & Ganância (Cripto)",
+    what: "Mede a emoção do mercado cripto de 0 a 100, do pânico à euforia (volatilidade, volume, dominância, buscas).",
     how: "Abaixo de 30 = medo (costuma ser bom comprar). Acima de 70 = ganância (risco de topo, hora de realizar).",
+  },
+  fearGreedTradfi: {
+    term: "Medo & Ganância (Tradicional)",
+    what: "O mesmo termômetro de emoção, mas do mercado tradicional (bolsa dos EUA), calculado pela CNN.",
+    how: "Cripto costuma seguir as bolsas: medo extremo lá pressiona a cripto; ganância lá dá apetite a risco. Compare os dois medidores.",
   },
   altseason: {
     term: "Altcoin Season",

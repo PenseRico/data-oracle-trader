@@ -22,8 +22,8 @@ export function DashboardLayout({ children, fullHeight = false, hideMacroBar = f
           <main
             className={
               fullHeight
-                ? "flex-1 flex flex-col overflow-hidden w-full"
-                : "flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full max-w-full"
+                ? "flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full min-h-0"
+                : "flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full max-w-full min-h-0"
             }
           >
             {children}

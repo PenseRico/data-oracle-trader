@@ -42,7 +42,7 @@ export function HomeHero() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> ao vivo · Binance
             </span>
           </div>
-          <div className="flex-1 min-h-[440px]">
+          <div className="h-[440px]">
             <TradingViewChart
               symbol="BINANCE:BTCUSDT"
               interval="60"
