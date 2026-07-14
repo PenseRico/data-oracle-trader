@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +23,10 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLogin && !accepted) {
+      toast.error("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+      return;
+    }
     setLoading(true);
     try {
       if (isLogin) {
@@ -106,7 +111,23 @@ export default function AuthPage() {
                 className="pl-10 bg-muted/30 border-border/50"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            {!isLogin && (
+              <label className="flex items-start gap-2 text-[11px] text-muted-foreground leading-snug cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  className="mt-0.5 h-3.5 w-3.5 accent-primary shrink-0"
+                />
+                <span>
+                  Li e aceito os{" "}
+                  <Link to="/termos" target="_blank" className="text-primary hover:underline">Termos de Uso</Link>{" "}
+                  e a{" "}
+                  <Link to="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade</Link>.
+                </span>
+              </label>
+            )}
+            <Button type="submit" className="w-full" disabled={loading || (!isLogin && !accepted)}>
               {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar Conta"}
             </Button>
           </form>

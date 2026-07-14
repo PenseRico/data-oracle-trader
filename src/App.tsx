@@ -35,6 +35,9 @@ import BotSwingTradePage from "./pages/BotSwingTradePage.tsx";
 import ScalpBotPage from "./pages/ScalpBotPage.tsx";
 import MinhaCarteiraPage from "./pages/MinhaCarteiraPage.tsx";
 import ManualPage from "./pages/ManualPage.tsx";
+import PrivacyPage from "./pages/PrivacyPage.tsx";
+import TermsPage from "./pages/TermsPage.tsx";
+import { CookieConsent } from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +57,8 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/manual" element={<ManualPage />} />
+            <Route path="/privacidade" element={<PrivacyPage />} />
+            <Route path="/termos" element={<TermsPage />} />
             
             {/* Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />
@@ -85,6 +90,7 @@ const App = () => (
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieConsent />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

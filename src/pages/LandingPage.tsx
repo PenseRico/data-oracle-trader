@@ -914,10 +914,10 @@ export function LandingPage() {
             <span className="mono" style={{ fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>MATRIX INFRASTRUCTURE</span>
           </div>
           <div style={{ display: "flex", gap: 28 }}>
-            {["Termos Legais", "Privacidade"].map((l) => (
+            {[["Termos de Uso", "/termos"], ["Privacidade", "/privacidade"], ["Manual", "/manual"]].map(([l, href]) => (
               <a
                 key={l}
-                href="#"
+                href={href}
                 className="tag"
                 style={{ color: "rgba(255,255,255,0.22)", textDecoration: "none", transition: "color 0.18s" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
