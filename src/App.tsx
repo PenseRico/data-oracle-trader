@@ -34,6 +34,7 @@ import SignalCentralPage from "./pages/SignalCentralPage.tsx";
 import BotSwingTradePage from "./pages/BotSwingTradePage.tsx";
 import ScalpBotPage from "./pages/ScalpBotPage.tsx";
 import MinhaCarteiraPage from "./pages/MinhaCarteiraPage.tsx";
+import ManualPage from "./pages/ManualPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/manual" element={<ManualPage />} />
             
             {/* Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedDashboard><Dashboard /></ProtectedDashboard>} />

@@ -41,6 +41,7 @@ const filterItems: NavItem[] = [
 ];
 
 const toolItems: NavItem[] = [
+  { title: "Manual / Guia", url: "/manual", icon: BookOpen },
   { title: "Alertas", url: "/dashboard/alerts", icon: Zap },
   { title: "Terminal Notícias", url: "/dashboard/news", icon: Newspaper },
   { title: "Mesa de Operações", url: "/dashboard/community", icon: MessageSquare },
