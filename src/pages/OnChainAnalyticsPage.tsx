@@ -1,9 +1,62 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { OnChainMetricCard } from "@/components/dashboard/OnChainMetricCard";
-import { ONCHAIN_METRICS } from "@/lib/api/onchain";
+import { ONCHAIN_METRICS, useOnChainSnapshot, TONE_SCORE, type ZoneTone } from "@/lib/api/onchain";
 import { Badge } from "@/components/ui/badge";
-import { Link2, Activity } from "lucide-react";
+import { Link2, Activity, Gauge } from "lucide-react";
+
+const TONE_DOT: Record<ZoneTone, string> = {
+  buy: "bg-emerald-400", accumulate: "bg-teal-300", neutral: "bg-zinc-400", caution: "bg-amber-400", sell: "bg-rose-400",
+};
+const TONE_TEXT: Record<ZoneTone, string> = {
+  buy: "text-emerald-400", accumulate: "text-teal-300", neutral: "text-zinc-400", caution: "text-amber-400", sell: "text-rose-400",
+};
+
+function CycleConsensus() {
+  const { data, isLoading } = useOnChainSnapshot();
+  const items = (data ?? []).filter((i) => i.zone && i.value != null);
+  if (isLoading && !items.length) return <div className="glass-card rounded-xl border border-white/5 bg-black/40 h-32 animate-pulse" />;
+  if (!items.length) return null;
+
+  const avg = items.reduce((s, i) => s + TONE_SCORE[i.zone!.tone], 0) / items.length;
+  const buyCount = items.filter((i) => i.zone!.tone === "buy" || i.zone!.tone === "accumulate").length;
+  const topCount = items.filter((i) => i.zone!.tone === "sell" || i.zone!.tone === "caution").length;
+  const verdict =
+    avg <= -1.2 ? { label: "FUNDO / COMPRA", cls: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" }
+    : avg <= -0.4 ? { label: "ACUMULAÇÃO", cls: "text-teal-300 border-teal-500/30 bg-teal-500/10" }
+    : avg < 0.4 ? { label: "NEUTRO", cls: "text-zinc-300 border-zinc-500/30 bg-zinc-500/10" }
+    : avg < 1.2 ? { label: "CAUTELA", cls: "text-amber-400 border-amber-500/30 bg-amber-500/10" }
+    : { label: "TOPO / DISTRIBUIÇÃO", cls: "text-rose-400 border-rose-500/30 bg-rose-500/10" };
+
+  return (
+    <div className="glass-card rounded-xl border border-white/[0.06] bg-black/40 p-4 sm:p-5 space-y-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Gauge className="h-4 w-4 text-primary" />
+          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/90">Posição no Ciclo</h3>
+          <span className="text-[9px] font-mono text-muted-foreground/50">{items.length} indicadores on-chain</span>
+        </div>
+        <span className={`text-xs font-black uppercase tracking-widest rounded-lg border px-3 py-1 ${verdict.cls}`}>{verdict.label}</span>
+      </div>
+      <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+        <span className="text-white/90 font-bold">{buyCount} de {items.length}</span> indicadores em zona de compra/acúmulo
+        {topCount > 0 && <> · <span className="text-white/90 font-bold">{topCount}</span> em cautela/topo</>}. Leitura macro de longo prazo — não é gatilho de curto prazo.
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        {items.map((i) => (
+          <div key={i.metric.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5">
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${TONE_DOT[i.zone!.tone]}`} />
+              <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground/70 truncate">{i.metric.label}</span>
+            </div>
+            <div className="text-sm font-black font-mono text-white">{i.value!.toFixed(i.metric.precision)}</div>
+            <div className={`text-[9px] font-bold truncate ${TONE_TEXT[i.zone!.tone]}`}>{i.zone!.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const CATEGORIES = [
   { id: "btc", label: "Bitcoin On-Chain", enabled: true },
@@ -76,8 +129,9 @@ export default function OnChainAnalyticsPage() {
           </div>
         </div>
 
-        {/* Cards empilhados */}
+        {/* Consenso de ciclo + cards empilhados */}
         <div className="flex-1 p-4 sm:p-6 space-y-5 max-w-5xl w-full mx-auto">
+          <CycleConsensus />
           {metrics.map((m) => (
             <OnChainMetricCard key={m.id} metric={m} />
           ))}

@@ -144,6 +144,82 @@ export const ONCHAIN_METRICS: OnChainMetricDef[] = [
     ],
     category: "btc",
   },
+  {
+    id: "puell-multiple",
+    endpoint: "puell-multiple",
+    valueKey: "puellMultiple",
+    label: "Puell Multiple",
+    tag: "Ciclo · Mineração",
+    baseline: 1,
+    precision: 2,
+    about:
+      "Receita diária dos mineradores dividida pela média de 1 ano. Abaixo de 0,5 marcou fundos históricos (mineradores capitulando); acima de 4, topos de ciclo (receita eufórica).",
+    zones: [
+      { max: 0.5, label: "Capitulação Mineradora", tone: "buy", note: "Receita minerada muito abaixo da média — fundo histórico." },
+      { max: 1, label: "Acumulação", tone: "accumulate", note: "Abaixo da média anual — zona saudável de compra." },
+      { max: 2.5, label: "Neutro", tone: "neutral", note: "Receita equilibrada." },
+      { max: 4, label: "Aquecido", tone: "caution", note: "Receita elevada — atenção ao ciclo." },
+      { max: Infinity, label: "Topo de Ciclo", tone: "sell", note: "Puell > 4 marcou topos históricos." },
+    ],
+    category: "btc",
+  },
+  {
+    id: "reserve-risk",
+    endpoint: "reserve-risk",
+    valueKey: "reserveRisk",
+    label: "Reserve Risk",
+    tag: "Ciclo · Convicção",
+    baseline: 0.006,
+    precision: 4,
+    about:
+      "Mede a convicção dos holders de longo prazo em relação ao preço. Muito baixo = alta convicção com preço barato (ótimo risco/retorno); alto = preço caro vs convicção (zona de topo).",
+    zones: [
+      { max: 0.002, label: "Oportunidade Rara", tone: "buy", note: "Convicção alta + preço baixo — risco/retorno excelente." },
+      { max: 0.006, label: "Acumulação", tone: "accumulate", note: "Zona historicamente atrativa." },
+      { max: 0.012, label: "Neutro", tone: "neutral", note: "Equilíbrio entre preço e convicção." },
+      { max: 0.025, label: "Aquecido", tone: "caution", note: "Preço subindo mais rápido que a convicção." },
+      { max: Infinity, label: "Topo de Ciclo", tone: "sell", note: "Preço caro demais vs convicção — zona de topo." },
+    ],
+    category: "btc",
+  },
+  {
+    id: "sth-mvrv",
+    endpoint: "sth-mvrv",
+    valueKey: "sthMvrv",
+    label: "MVRV — Short-Term Holders",
+    tag: "Topo/Fundo Local",
+    baseline: 1,
+    precision: 2,
+    about:
+      "MVRV dos holders de curto prazo (moedas com menos de 155 dias). Abaixo de 1, os novatos estão no prejuízo — costuma marcar fundos locais; acima de 1,4, topos locais.",
+    zones: [
+      { max: 0.9, label: "Prejuízo (STH)", tone: "buy", note: "Novatos no prejuízo — fundo local provável." },
+      { max: 1, label: "Break-even", tone: "accumulate", note: "STHs no zero a zero — pivô importante." },
+      { max: 1.2, label: "Lucro Moderado", tone: "neutral", note: "Novatos em lucro saudável." },
+      { max: 1.4, label: "Aquecido", tone: "caution", note: "Lucro alto de curto prazo — risco de realização." },
+      { max: Infinity, label: "Topo Local", tone: "sell", note: "STH-MVRV > 1,4 costuma marcar topos locais." },
+    ],
+    category: "btc",
+  },
+  {
+    id: "rhodl-ratio",
+    endpoint: "rhodl-ratio",
+    valueKey: "rhodlRatio",
+    label: "RHODL Ratio",
+    tag: "Ciclo Macro",
+    baseline: 10000,
+    precision: 0,
+    about:
+      "Compara moedas movimentadas recentemente (1 semana) com as de 1-2 anos. Valores baixos indicam acúmulo (fundo); picos históricos acima de 50 mil marcaram topos de ciclo.",
+    zones: [
+      { max: 1000, label: "Acúmulo Profundo", tone: "buy", note: "Domínio de moedas antigas — fundo macro." },
+      { max: 10000, label: "Acumulação", tone: "accumulate", note: "Zona saudável de ciclo." },
+      { max: 30000, label: "Neutro / Alta", tone: "neutral", note: "Ciclo em desenvolvimento." },
+      { max: 50000, label: "Aquecido", tone: "caution", note: "Aproximando da zona de topo." },
+      { max: Infinity, label: "Topo de Ciclo", tone: "sell", note: "Picos acima de 50k marcaram topos históricos." },
+    ],
+    category: "btc",
+  },
 ];
 
 export function classifyZone(metric: OnChainMetricDef, value: number): OnChainZone {
@@ -212,6 +288,42 @@ export function useOnChainSeries(metric: OnChainMetricDef) {
   return useQuery({
     queryKey: ["onchain", metric.endpoint],
     queryFn: () => fetchSeries(metric.endpoint, metric.valueKey),
+    staleTime: CACHE_TTL,
+    refetchInterval: CACHE_TTL,
+    retry: 1,
+  });
+}
+
+export interface OnChainSnapshotItem {
+  metric: OnChainMetricDef;
+  value: number | null;
+  zone: OnChainZone | null;
+}
+
+/** Pontuação de cada zona: negativo = barato/fundo, positivo = caro/topo. */
+export const TONE_SCORE: Record<ZoneTone, number> = { buy: -2, accumulate: -1, neutral: 0, caution: 1, sell: 2 };
+
+/**
+ * Busca o valor atual de todas as métricas BTC de uma vez (usa o mesmo cache de 12h)
+ * para montar o consenso de "posição no ciclo".
+ */
+export function useOnChainSnapshot() {
+  const metrics = ONCHAIN_METRICS.filter((m) => m.category === "btc");
+  return useQuery({
+    queryKey: ["onchain-snapshot", metrics.map((m) => m.endpoint).join(",")],
+    queryFn: async (): Promise<OnChainSnapshotItem[]> => {
+      return Promise.all(
+        metrics.map(async (metric) => {
+          try {
+            const pts = await fetchSeries(metric.endpoint, metric.valueKey);
+            const value = pts.length ? pts[pts.length - 1].value : null;
+            return { metric, value, zone: value != null ? classifyZone(metric, value) : null };
+          } catch {
+            return { metric, value: null, zone: null };
+          }
+        }),
+      );
+    },
     staleTime: CACHE_TTL,
     refetchInterval: CACHE_TTL,
     retry: 1,
