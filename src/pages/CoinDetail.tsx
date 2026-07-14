@@ -223,9 +223,9 @@ export default function CoinDetail() {
         {coin.description?.en && (
           <div className="glass-card rounded-lg p-4">
             <h3 className="font-display font-semibold text-sm mb-2">Sobre {coin.name}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4"
-              dangerouslySetInnerHTML={{ __html: coin.description.en.slice(0, 500) }}
-            />
+            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">
+              {coin.description.en.replace(/<[^>]*>/g, "").slice(0, 500)}
+            </p>
           </div>
         )}
       </div>

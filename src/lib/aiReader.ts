@@ -3,14 +3,21 @@
  * A chave da OpenRouter fica NO SERVIDOR (env var da Vercel). O cliente nunca vê chave.
  */
 
+import { supabase } from "@/integrations/supabase/client";
+
 const PROXY_URL = "/api/ai-proxy";
 
 interface Msg { role: "system" | "user" | "assistant"; content: string; }
 
 async function aiChat(messages: Msg[], model = "openai/gpt-4o-mini", maxTokens = 900): Promise<string> {
+  // Manda o token da sessão pro proxy validar (evita proxy aberto / abuso de créditos).
+  const { data: { session } } = await supabase.auth.getSession();
   const r = await fetch(PROXY_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    },
     body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
   });
   const d = await r.json().catch(() => ({ error: "resposta inválida da IA" }));
