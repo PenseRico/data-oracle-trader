@@ -253,12 +253,23 @@ function writeCache(endpoint: string, points: OnChainPoint[]) {
   }
 }
 
-async function fetchSeries(endpoint: string, valueKey: string): Promise<OnChainPoint[]> {
+// Dedup de requisições em voo: se o banner de consenso e o card pedirem o mesmo
+// endpoint ao mesmo tempo (load frio), compartilham UMA requisição (poupa o limite de 10/h).
+const inflight = new Map<string, Promise<OnChainPoint[]>>();
+
+function fetchSeries(endpoint: string, valueKey: string): Promise<OnChainPoint[]> {
   const cached = readCache(endpoint);
   if (cached && Date.now() - cached.ts < CACHE_TTL && cached.points.length) {
-    return cached.points; // fresco → zero rede
+    return Promise.resolve(cached.points); // fresco → zero rede
   }
+  const existing = inflight.get(endpoint);
+  if (existing) return existing;
+  const p = doFetchSeries(endpoint, valueKey, cached).finally(() => inflight.delete(endpoint));
+  inflight.set(endpoint, p);
+  return p;
+}
 
+async function doFetchSeries(endpoint: string, valueKey: string, cached: CacheEntry | null): Promise<OnChainPoint[]> {
   try {
     const res = await fetch(`${BASE}/${endpoint}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
