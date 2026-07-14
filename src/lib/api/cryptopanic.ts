@@ -27,14 +27,18 @@ async function fetchNews(): Promise<NewsItem[]> {
     if (!r.ok) return [];
     const d = await r.json();
     const items = Array.isArray(d.items) ? d.items : [];
-    return items.map((it: any, i: number) => ({
-      id: it.url || String(i),
-      title: it.title,
-      url: it.url,
-      source: it.source || "cryptopanic",
-      published_at: it.published_at,
-      currencies: detectTickers(it.title || ""),
-    }));
+    return items.map((it: any, i: number) => {
+      const catTickers = String(it.categories || "").split("|").map((s) => s.trim().toUpperCase()).filter((t) => TICKERS.includes(t));
+      const currencies = Array.from(new Set([...catTickers, ...detectTickers(it.title || "")])).slice(0, 3);
+      return {
+        id: it.url || String(i),
+        title: it.title,
+        url: it.url,
+        source: it.source || "cryptopanic",
+        published_at: it.published_at,
+        currencies,
+      };
+    });
   } catch {
     return [];
   }
