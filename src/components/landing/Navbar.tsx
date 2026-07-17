@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ export function Navbar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary border border-primary/60 shadow-[0_0_12px_hsl(var(--primary)/0.5)]">
             <span className="text-black font-black text-sm">M</span>
           </div>
-          <span className="text-primary font-black text-xl tracking-tighter">Matrix</span>
+          <BrandName className="font-black text-xl tracking-tighter" />
         </a>
 
         {/* Desktop links */}

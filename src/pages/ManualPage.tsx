@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
 import { MANUAL } from "@/lib/manualContent";
 import { Zap, ArrowRight, BookOpen, Check, CircleDot } from "lucide-react";
@@ -21,7 +22,7 @@ export default function ManualPage() {
             <div className="h-8 w-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shadow-glow">
               <Zap className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-display font-black text-lg tracking-tighter text-primary">Matrix</span>
+            <BrandName className="font-display font-black text-lg tracking-tighter" />
           </Link>
           <span className="text-muted-foreground/40">/</span>
           <span className="text-sm font-bold uppercase tracking-widest text-white/80">Manual</span>
@@ -39,7 +40,7 @@ export default function ManualPage() {
           </div>
           <div>
             <h1 className="font-display font-black text-3xl tracking-tight text-white">Manual da Plataforma</h1>
-            <p className="text-sm text-muted-foreground">Tudo que a Matrix entrega, explicado de forma simples — tela por tela.</p>
+            <p className="text-sm text-muted-foreground">Tudo que a Crypto Rico entrega, explicado de forma simples — tela por tela.</p>
           </div>
         </div>
 

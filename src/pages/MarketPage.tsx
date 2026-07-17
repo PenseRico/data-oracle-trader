@@ -25,13 +25,13 @@ export default function MarketPage() {
   return (
     <DashboardLayout>
       <PageShell
-        title={<>Market <span className="text-primary">Matrix</span></>}
+        title={"Market"}
         subtitle={`Top 100 ativos · filtro RSI ${rsiRange.min}–${rsiRange.max}`}
         icon={Globe2}
         accent="primary"
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
-          { label: "Market Matrix" },
+          { label: "Market" },
         ]}
         actions={
           <Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary text-[9px] uppercase tracking-widest">

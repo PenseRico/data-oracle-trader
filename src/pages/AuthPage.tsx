@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -72,7 +73,7 @@ export default function AuthPage() {
           <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
             <Zap className="h-6 w-6 text-primary" />
           </div>
-          <span className="font-display font-black text-2xl text-foreground"><span className="text-primary">Matrix</span></span>
+          <span className="font-display font-black text-2xl"><BrandName /></span>
         </div>
 
         {/* Card */}

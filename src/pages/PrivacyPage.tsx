@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
 import { Zap, ArrowLeft, ShieldCheck } from "lucide-react";
 
@@ -30,7 +31,7 @@ export default function PrivacyPage() {
             <div className="h-8 w-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shadow-glow">
               <Zap className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-display font-black text-lg tracking-tighter text-primary">Matrix</span>
+            <BrandName className="font-display font-black text-lg tracking-tighter" />
           </Link>
           <span className="text-muted-foreground/40">/</span>
           <span className="text-sm font-bold uppercase tracking-widest text-white/80">Privacidade</span>
@@ -52,7 +53,7 @@ export default function PrivacyPage() {
           <div>
             <h1 className="font-display font-black text-3xl tracking-tight text-white">Política de Privacidade</h1>
             <p className="text-sm text-muted-foreground">
-              Como a Matrix trata seus dados pessoais, em conformidade com a LGPD (Lei nº 13.709/2018).
+              Como a Crypto Rico trata seus dados pessoais, em conformidade com a LGPD (Lei nº 13.709/2018).
             </p>
           </div>
         </div>
@@ -62,14 +63,14 @@ export default function PrivacyPage() {
         <div className="space-y-6">
           <Section title="1. Quem somos e nosso papel">
             <p>
-              A <strong className="text-white/90">Matrix</strong> é uma plataforma de análise do mercado de
+              A <strong className="text-white/90">Crypto Rico</strong> é uma plataforma de análise do mercado de
               criptomoedas: oferecemos gráficos, indicadores on-chain, RSI, sinais de estudo, leitura de carteira por
               inteligência artificial e um chat de comunidade. <strong className="text-white/90">Não somos uma
               corretora (exchange), não custodiamos seus fundos e não prestamos recomendação ou consultoria de
               investimentos.</strong>
             </p>
             <p>
-              Para os fins da Lei Geral de Proteção de Dados (LGPD), a Matrix atua como{" "}
+              Para os fins da Lei Geral de Proteção de Dados (LGPD), a Crypto Rico atua como{" "}
               <strong className="text-white/90">Controladora</strong> dos dados pessoais tratados nesta plataforma,
               decidindo sobre as finalidades e os meios do tratamento. O contato do encarregado (DPO) e do controlador
               está na seção final desta política.
@@ -130,7 +131,7 @@ export default function PrivacyPage() {
 
           <Section title="4. Compartilhamento e subprocessadores">
             <p>
-              Para operar, a Matrix se apoia em prestadores de serviço (operadores/subprocessadores) que tratam dados
+              Para operar, a Crypto Rico se apoia em prestadores de serviço (operadores/subprocessadores) que tratam dados
               em nosso nome, sob obrigações contratuais de segurança e confidencialidade:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 marker:text-primary">
@@ -190,7 +191,7 @@ export default function PrivacyPage() {
             </ul>
             <p>
               Para exercer qualquer um desses direitos, escreva para{" "}
-              <a href="mailto:privacidade@matrix.app" className="text-primary hover:underline font-bold">privacidade@matrix.app</a>.
+              <a href="mailto:privacidade@cryptorico.app" className="text-primary hover:underline font-bold">privacidade@cryptorico.app</a>.
               Responderemos dentro dos prazos previstos na legislação.
             </p>
           </Section>
@@ -205,7 +206,7 @@ export default function PrivacyPage() {
 
           <Section title="10. Dados de menores">
             <p>
-              A Matrix não é destinada a menores de 18 anos e não coletamos intencionalmente dados de crianças ou
+              A Crypto Rico não é destinada a menores de 18 anos e não coletamos intencionalmente dados de crianças ou
               adolescentes. Caso identifiquemos o cadastro de um menor, tomaremos medidas para encerrar a conta e
               eliminar os dados associados.
             </p>
@@ -223,13 +224,13 @@ export default function PrivacyPage() {
             <p>
               Para dúvidas sobre esta política, sobre o tratamento dos seus dados ou para exercer seus direitos, fale
               com nosso encarregado de proteção de dados (DPO) e controlador pelo e-mail{" "}
-              <a href="mailto:privacidade@matrix.app" className="text-primary hover:underline font-bold">privacidade@matrix.app</a>.
+              <a href="mailto:privacidade@cryptorico.app" className="text-primary hover:underline font-bold">privacidade@cryptorico.app</a>.
             </p>
           </Section>
 
           <p className="text-[11px] text-muted-foreground/50 italic pt-2 border-t border-white/5">
             Este documento tem caráter informativo e não constitui recomendação de investimento. As ferramentas da
-            Matrix mostram dados e estudos — a decisão e o risco são sempre seus.
+            Crypto Rico mostram dados e estudos — a decisão e o risco são sempre seus.
           </p>
         </div>
       </div>

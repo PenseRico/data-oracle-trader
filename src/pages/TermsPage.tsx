@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
 import { Zap, ArrowLeft, ScrollText, AlertTriangle } from "lucide-react";
 
@@ -22,7 +23,7 @@ export default function TermsPage() {
             <div className="h-8 w-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shadow-glow">
               <Zap className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-display font-black text-lg tracking-tighter text-primary">Matrix</span>
+            <BrandName className="font-display font-black text-lg tracking-tighter" />
           </Link>
           <span className="text-muted-foreground/40">/</span>
           <span className="text-sm font-bold uppercase tracking-widest text-white/80">Termos de Uso</span>
@@ -44,7 +45,7 @@ export default function TermsPage() {
           <div>
             <h1 className="font-display font-black text-3xl tracking-tight text-white">Termos de Uso</h1>
             <p className="text-sm text-muted-foreground">
-              As regras para uso da plataforma Matrix. Ao acessar, você concorda com estes termos.
+              As regras para uso da plataforma Crypto Rico. Ao acessar, você concorda com estes termos.
             </p>
           </div>
         </div>
@@ -57,7 +58,7 @@ export default function TermsPage() {
           <div className="text-[13px] leading-relaxed text-amber-100/90">
             <p className="font-black text-amber-300 uppercase tracking-widest text-[11px] mb-1">Aviso de risco</p>
             <p>
-              A Matrix é uma ferramenta de <strong>análise e educação</strong>. Nada aqui constitui recomendação,
+              A Crypto Rico é uma ferramenta de <strong>análise e educação</strong>. Nada aqui constitui recomendação,
               consultoria ou oferta de investimento. O mercado de criptomoedas é extremamente volátil e você pode
               perder todo o capital investido. <strong>As decisões e os riscos são exclusivamente seus.</strong>
             </p>
@@ -67,22 +68,22 @@ export default function TermsPage() {
         <div className="space-y-6">
           <Section title="1. Aceitação dos termos">
             <p>
-              Ao criar uma conta ou utilizar a plataforma Matrix, você declara ter lido, compreendido e concordado com
+              Ao criar uma conta ou utilizar a plataforma Crypto Rico, você declara ter lido, compreendido e concordado com
               estes Termos de Uso e com a nossa{" "}
               <Link to="/privacidade" className="text-primary hover:underline font-bold">Política de Privacidade</Link>.
-              Caso não concorde, não utilize a plataforma. Para usar a Matrix, você deve ter capacidade civil plena e
+              Caso não concorde, não utilize a plataforma. Para usar a Crypto Rico, você deve ter capacidade civil plena e
               pelo menos 18 anos de idade.
             </p>
           </Section>
 
           <Section title="2. Descrição do serviço">
             <p>
-              A Matrix é uma plataforma de <strong className="text-white/90">análise do mercado de criptomoedas com
+              A Crypto Rico é uma plataforma de <strong className="text-white/90">análise do mercado de criptomoedas com
               finalidade educacional e informativa</strong>: gráficos, indicadores on-chain, RSI, sinais de estudo,
               leitura de carteira por inteligência artificial (read-only) e um chat de comunidade.
             </p>
             <p>
-              <strong className="text-white/90">A Matrix NÃO é uma recomendação de investimento.</strong> Os conteúdos,
+              <strong className="text-white/90">A Crypto Rico NÃO é uma recomendação de investimento.</strong> Os conteúdos,
               indicadores, sinais e análises — inclusive os gerados por IA — têm caráter meramente informativo e
               educacional, não representam aconselhamento financeiro, jurídico ou tributário, e não devem ser
               interpretados como sugestão de compra ou venda de qualquer ativo. Rentabilidade passada não garante
@@ -106,7 +107,7 @@ export default function TermsPage() {
               <li>Praticar spam, propaganda não autorizada, esquemas de "pump and dump" ou manipulação de mercado.</li>
               <li>Assediar, ameaçar ou expor dados pessoais de terceiros.</li>
               <li>Divulgar golpes, links maliciosos, malware ou conteúdo fraudulento.</li>
-              <li>Passar-se por outra pessoa ou pela própria Matrix.</li>
+              <li>Passar-se por outra pessoa ou pela própria Crypto Rico.</li>
               <li>Enviar imagens ou textos que violem direitos de terceiros.</li>
             </ul>
             <p>
@@ -117,10 +118,10 @@ export default function TermsPage() {
 
           <Section title="5. Propriedade intelectual">
             <p>
-              A marca "Matrix", o layout, os textos, o código, as interfaces e demais elementos da plataforma são
-              protegidos por direitos de propriedade intelectual e pertencem à Matrix ou a seus licenciadores. É vedada
+              A marca "Crypto Rico", o layout, os textos, o código, as interfaces e demais elementos da plataforma são
+              protegidos por direitos de propriedade intelectual e pertencem à Crypto Rico ou a seus licenciadores. É vedada
               a reprodução, distribuição ou uso comercial sem autorização prévia. O conteúdo que você publica na
-              comunidade continua sendo seu, mas você concede à Matrix uma licença para exibi-lo dentro da plataforma.
+              comunidade continua sendo seu, mas você concede à Crypto Rico uma licença para exibi-lo dentro da plataforma.
               Dados de mercado exibidos podem pertencer a seus respectivos provedores (CoinGecko, TradingView e outros).
             </p>
           </Section>
@@ -133,7 +134,7 @@ export default function TermsPage() {
             </p>
             <p>
               <strong className="text-white/90">Você é o único responsável pelas suas decisões de investimento.</strong>{" "}
-              Na máxima extensão permitida pela lei, a Matrix não se responsabiliza por perdas, danos diretos ou
+              Na máxima extensão permitida pela lei, a Crypto Rico não se responsabiliza por perdas, danos diretos ou
               indiretos, lucros cessantes ou prejuízos decorrentes do uso — ou da impossibilidade de uso — da
               plataforma, ou de decisões tomadas com base em qualquer conteúdo aqui apresentado.
             </p>
@@ -141,7 +142,7 @@ export default function TermsPage() {
 
           <Section title="7. Ausência de custódia e de execução de ordens">
             <p>
-              A Matrix <strong className="text-white/90">não é uma corretora (exchange), não custodia fundos, não
+              A Crypto Rico <strong className="text-white/90">não é uma corretora (exchange), não custodia fundos, não
               executa ordens de compra ou venda e não tem acesso ao seu patrimônio.</strong> Nenhuma operação
               financeira é realizada por meio da plataforma. A leitura de carteira por IA utiliza apenas os dados que
               você informa manualmente e serve exclusivamente para fins de estudo.
@@ -167,7 +168,7 @@ export default function TermsPage() {
           <Section title="10. Contato">
             <p>
               Dúvidas sobre estes Termos de Uso podem ser encaminhadas para{" "}
-              <a href="mailto:privacidade@matrix.app" className="text-primary hover:underline font-bold">privacidade@matrix.app</a>.
+              <a href="mailto:privacidade@cryptorico.app" className="text-primary hover:underline font-bold">privacidade@cryptorico.app</a>.
             </p>
           </Section>
 

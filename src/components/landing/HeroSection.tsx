@@ -250,7 +250,7 @@ export function HeroSection() {
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-mono text-white/30">
                   <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                  MATRIX · LIVE FEED
+                  CRYPTO RICO · LIVE FEED
                 </div>
                 <div className="text-[10px] text-white/20 font-mono">BTC/USDT 1H</div>
               </div>

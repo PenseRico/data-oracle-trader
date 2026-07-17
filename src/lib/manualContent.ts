@@ -57,7 +57,7 @@ export const MANUAL: ManualGroup[] = [
       },
       {
         id: "market",
-        title: "Market Matrix",
+        title: "Market",
         plano: "Grátis",
         oQueE: "Uma tabela ao vivo com as 100 maiores moedas, com filtro por RSI. Serve pra garimpar rapidamente moedas esticadas pra baixo (sobrevendidas) ou pra cima (sobrecompradas).",
         comoUsar: [

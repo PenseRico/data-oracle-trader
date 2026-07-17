@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import {
   BarChart3, TrendingUp, TrendingDown, Activity, Filter,
   LayoutDashboard, LineChart, Newspaper, MessageSquare,
@@ -19,7 +20,7 @@ interface NavItem { title: string; url: string; icon: LucideIcon; soon?: boolean
 const mainItems: NavItem[] = [
   { title: "Terminal de Comando", url: "/dashboard", icon: LayoutDashboard },
   { title: "Minha Carteira", url: "/dashboard/carteira", icon: Wallet },
-  { title: "Market Matrix", url: "/dashboard/market", icon: Globe2 },
+  { title: "Market", url: "/dashboard/market", icon: Globe2 },
   { title: "Heatmap + Calendário", url: "/dashboard/heatmap", icon: MapPin },
   { title: "Dados On-Chain", url: "/dashboard/on-chain", icon: Link2 },
   { title: "TradingView Pro", url: "/dashboard/tradingview", icon: LineChart },
@@ -98,7 +99,7 @@ export function DashboardSidebar() {
             <Zap className="h-4 w-4 text-primary" />
           </div>
           {!collapsed && (
-            <span className="font-display font-black text-xl text-foreground tracking-tighter"><span className="text-primary">Matrix</span></span>
+            <span className="font-display font-black text-xl tracking-tighter"><BrandName /></span>
           )}
         </NavLink>
       </SidebarHeader>
@@ -127,7 +128,7 @@ export function DashboardSidebar() {
                 Pro
               </button>
             </div>
-            <div className="text-[9px] text-muted-foreground/40 text-center uppercase tracking-widest font-mono">preview de plano · Matrix</div>
+            <div className="text-[9px] text-muted-foreground/40 text-center uppercase tracking-widest font-mono">preview de plano · Crypto Rico</div>
           </>
         )}
       </SidebarFooter>

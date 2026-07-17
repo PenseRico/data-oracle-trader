@@ -1,3 +1,4 @@
+import { BrandName } from "@/components/BrandName";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Bot, Brain, Shield, Activity, CheckCircle2, Wallet, BarChart3 } from "lucide-react";
@@ -289,8 +290,8 @@ export function LandingPage() {
               fontSize: 16,
               color: "#fff",
               boxShadow: "0 0 22px rgba(16,185,129,0.5)"
-            }}>M</div>
-            <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: "-0.035em" }}>Matrix</span>
+            }}>CR</div>
+            <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: "-0.035em" }}><BrandName /></span>
           </div>
           <div style={{ display: "flex", gap: 36, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>
             {[["#hero", "Início"], ["#tecnologia", "Tecnologia"], ["#ia-carteira", "IA Carteira"], ["#recursos", "Recursos"], ["#precos", "Preços"]].map(
@@ -316,7 +317,7 @@ export function LandingPage() {
             >
               Acessar
             </button>
-            <button onClick={() => nav("/dashboard")} className="btn-primary" style={{ padding: "10px 22px", fontSize: 13, borderRadius: 10 }}>Matrix PRO</button>
+            <button onClick={() => nav("/dashboard")} className="btn-primary" style={{ padding: "10px 22px", fontSize: 13, borderRadius: 10 }}>Crypto Rico PRO</button>
           </div>
         </div>
       </nav>
@@ -422,7 +423,7 @@ export function LandingPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", animation: "pulse-em 2s infinite", color: "#10B981" }} />
-                  <span className="tag" style={{ color: "rgba(255,255,255,0.3)" }}>MATRIX TERMINAL · CONFLUENCE SCANNER LIVE</span>
+                  <span className="tag" style={{ color: "rgba(255,255,255,0.3)" }}>CRYPTO RICO TERMINAL · CONFLUENCE SCANNER LIVE</span>
                 </div>
                 <span className="tag" style={{ color: "rgba(255,255,255,0.18)" }}>v8.4</span>
               </div>
@@ -469,7 +470,7 @@ export function LandingPage() {
                     <div className="tag" style={{ color: "#FDA4AF" }}>Panic Sell · Zona de Compra</div>
                   </div>
                   <div style={{ paddingLeft: 24, textAlign: "right" }}>
-                    <div className="tag" style={{ color: "#10B981", marginBottom: 10 }}>Matrix IA Score</div>
+                    <div className="tag" style={{ color: "#10B981", marginBottom: 10 }}>Crypto Rico IA Score</div>
                     <div style={{
                       fontSize: 44,
                       fontWeight: 900,
@@ -564,7 +565,7 @@ export function LandingPage() {
               A matemática trabalha.{" "}
               <span style={{ backgroundImage: "linear-gradient(120deg,#10B981,#34D399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Você lucra.</span>
             </h2>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.44)", lineHeight: 1.78, marginBottom: 28 }}>Conecte a Matrix à sua corretora via API. O bot atua 24h com stop e alvo definidos dinamicamente — sem que você precise apertar um botão sequer.</p>
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.44)", lineHeight: 1.78, marginBottom: 28 }}>Conecte a Crypto Rico à sua corretora via API. O bot atua 24h com stop e alvo definidos dinamicamente — sem que você precise apertar um botão sequer.</p>
             {["Gerencia múltiplos pares de forma simultânea.", "Zero FOMO — o bot não sente medo ou ganância.", "Stop Loss e Take Profit adaptativos por IA."].map(
               (t, i) => (
                 <div key={i} style={{
@@ -773,7 +774,7 @@ export function LandingPage() {
               A IA gerencia o que{" "}
               <span style={{ backgroundImage: "linear-gradient(120deg,#818CF8,#C4B5FD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>você já comprou.</span>
             </h2>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.44)", lineHeight: 1.78, marginBottom: 28 }}>O maior erro do trader é não saber quando vender. A Matrix rastreia cada ativo em tempo real e avisa antes de qualquer despejo institucional.</p>
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.44)", lineHeight: 1.78, marginBottom: 28 }}>O maior erro do trader é não saber quando vender. A Crypto Rico rastreia cada ativo em tempo real e avisa antes de qualquer despejo institucional.</p>
             {["Monitora múltiplas moedas 24h por dia.", "Alerta no Telegram antes de correções severas.", "Indica o preço ideal para recompor posições."].map(
               (t, i) => (
                 <div key={i} style={{
@@ -869,7 +870,7 @@ export function LandingPage() {
                 background: "radial-gradient(ellipse, rgba(16,185,129,0.12), transparent)",
                 pointerEvents: "none"
               }} />
-              <div className="tag" style={{ color: "#10B981", marginBottom: 22 }}>Matrix PRO</div>
+              <div className="tag" style={{ color: "#10B981", marginBottom: 22 }}>Crypto Rico PRO</div>
               <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginBottom: 6 }}>
                 <span style={{ fontSize: 22, fontWeight: 700, color: "rgba(255,255,255,0.45)", paddingBottom: 7 }}>R$</span>
                 <span style={{ fontSize: 76, fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 1, color: "#fff" }}>15</span>
@@ -910,8 +911,8 @@ export function LandingPage() {
               fontWeight: 900,
               fontSize: 14,
               color: "#fff"
-            }}>M</div>
-            <span className="mono" style={{ fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>MATRIX INFRASTRUCTURE</span>
+            }}>CR</div>
+            <span className="mono" style={{ fontWeight: 700, fontSize: 12, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>CRYPTO RICO INFRASTRUCTURE</span>
           </div>
           <div style={{ display: "flex", gap: 28 }}>
             {[["Termos de Uso", "/termos"], ["Privacidade", "/privacidade"], ["Manual", "/manual"]].map(([l, href]) => (

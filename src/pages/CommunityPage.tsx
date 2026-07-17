@@ -114,7 +114,7 @@ export default function CommunityPage() {
       </div>
       <div>
         <h1 className="font-display font-black text-2xl tracking-tight text-white">Mesa de Operações</h1>
-        <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">Chat ao vivo · todos os membros Matrix</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">Chat ao vivo · todos os membros Crypto Rico</p>
       </div>
     </div>
   );
