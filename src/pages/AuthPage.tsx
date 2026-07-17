@@ -14,7 +14,7 @@ export default function AuthPage() {
   const [username, setUsername] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
   if (user) {
@@ -56,6 +56,19 @@ export default function AuthPage() {
       await signInWithGoogle();
     } catch (err: any) {
       toast.error(err.message || "Erro ao entrar com Google");
+    }
+  };
+
+  const handleForgot = async () => {
+    if (!email) {
+      toast.error("Digite seu e-mail no campo acima primeiro.");
+      return;
+    }
+    try {
+      await resetPassword(email);
+      toast.success("Enviamos um link de recuperação pro seu e-mail. 📧");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao enviar recuperação");
     }
   };
 
@@ -140,6 +153,13 @@ export default function AuthPage() {
                 className="pl-10 bg-muted/30 border-border/50"
               />
             </div>
+            {isLogin && (
+              <div className="text-right -mt-2">
+                <button type="button" onClick={handleForgot} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  Esqueci minha senha
+                </button>
+              </div>
+            )}
             {!isLogin && (
               <label className="flex items-start gap-2 text-[11px] text-muted-foreground leading-snug cursor-pointer">
                 <input
