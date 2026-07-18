@@ -35,6 +35,21 @@ export function isStablecoin(symbol?: string): boolean {
   return STABLES.has((symbol ?? "").toLowerCase().trim());
 }
 
+// Tokens "embrulhados"/derivados que espelham outro ativo e NÃO têm par próprio de
+// gráfico na Binance (o TradingView falha em BINANCE:WBTCUSDT etc.). Não geram plano.
+const WRAPPED = new Set([
+  "wbtc", "cbbtc", "tbtc", "lbtc", "solvbtc", "renbtc", "hbtc",
+  "weth", "steth", "wsteth", "reth", "cbeth", "wbeth", "meth", "oeth", " oseth",
+  "ezeth", "rseth", "weeth", "sfrxeth", "frxeth", "ankreth", "eeth", "pufeth",
+  "wbnb", "wsol", "jupsol", "jitosol", "msol", "bsol", "jlp", "wpol", "wmatic", "wavax",
+]);
+
+/** Tokens que não geram plano de trade nem gráfico próprio (stablecoin ou embrulhado). */
+export function isNonTradeable(symbol?: string): boolean {
+  const s = (symbol ?? "").toLowerCase().trim();
+  return STABLES.has(s) || WRAPPED.has(s);
+}
+
 function timeframeOf(coin: EnrichedCoin): string {
   if (coin.shortTerm?.isActive) return "Scalp · horas";
   if (coin.longTerm?.isActive) return "Position · semanas";
@@ -49,7 +64,7 @@ function confidenceOf(coin: EnrichedCoin): number {
 }
 
 export function buildTradePlan(coin: EnrichedCoin): TradePlan | null {
-  if (STABLES.has(coin.symbol?.toLowerCase() ?? "")) return null;
+  if (isNonTradeable(coin.symbol)) return null;
   const cls = coin.signal.classification;
   const direction: "COMPRA" | "VENDA" | null =
     cls === "strong_buy" || cls === "buy" ? "COMPRA" : cls === "sell" || cls === "strong_sell" ? "VENDA" : null;
