@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,19 +10,7 @@ import { BrandName } from "@/components/BrandName";
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Ao chegar pelo link do e-mail, o Supabase cria uma sessão de recuperação.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) setReady(true);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +21,12 @@ export default function ResetPasswordPage() {
       toast.success("Senha alterada! Você já pode entrar. 🎉");
       navigate("/dashboard");
     } catch (err: any) {
-      toast.error(err.message || "Erro ao alterar a senha");
+      const msg = err?.message || "";
+      if (/session|missing|not authenticated/i.test(msg)) {
+        toast.error("Abra esta página pelo link do e-mail (no mesmo navegador) e tente de novo.");
+      } else {
+        toast.error(msg || "Erro ao alterar a senha");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,16 +63,10 @@ export default function ResetPasswordPage() {
                 className="pl-10 bg-muted/30 border-border/50"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading || !ready}>
-              {loading ? "Salvando..." : ready ? "Salvar nova senha" : "Abra pelo link do e-mail"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Salvando..." : "Salvar nova senha"}
             </Button>
           </form>
-
-          {!ready && (
-            <p className="text-[11px] text-center text-muted-foreground/70 leading-relaxed">
-              Esta página só funciona ao ser aberta pelo link de recuperação que enviamos no seu e-mail.
-            </p>
-          )}
         </div>
       </div>
     </div>
