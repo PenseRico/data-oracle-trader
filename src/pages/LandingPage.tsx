@@ -139,6 +139,13 @@ const WORDS = [
 
 export function LandingPage() {
   const nav = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const f = () => setIsMobile(window.innerWidth < 768);
+    f();
+    window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, []);
   return (
     <div style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif", background: "#03040A", color: "#fff", width: "100%", height: "100%", overflowX: "hidden", overflowY: "auto" }}>
       <style>{`
@@ -261,6 +268,12 @@ export function LandingPage() {
         .btn-ghost:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.22); transform:translateY(-2px); }
 
         .divider { border:none; border-top:1px solid rgba(255,255,255,0.055); margin:0; }
+
+        @media (max-width: 767px) {
+          .fc { padding:20px; border-radius:14px; }
+          .price-free { padding:26px 20px; border-radius:18px; }
+          .price-pro  { padding:30px 20px; border-radius:18px; }
+        }
       `}</style>
       <nav style={{
         position: "fixed",
@@ -276,7 +289,7 @@ export function LandingPage() {
         display: "flex",
         alignItems: "center"
       }}>
-        <div style={{ maxWidth: 1320, width: "100%", margin: "0 auto", padding: "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: 1320, width: "100%", margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => nav("/")}>
             <div style={{
               width: 36,
@@ -293,7 +306,7 @@ export function LandingPage() {
             }}>CR</div>
             <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: "-0.035em" }}><BrandName /></span>
           </div>
-          <div style={{ display: "flex", gap: 36, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>
+          <div style={{ display: isMobile ? "none" : "flex", gap: 36, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.42)" }}>
             {[["#hero", "Início"], ["#tecnologia", "Tecnologia"], ["#ia-carteira", "IA Carteira"], ["#recursos", "Recursos"], ["#precos", "Preços"]].map(
               ([h, l]) => (
                 <a
@@ -311,13 +324,13 @@ export function LandingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <button
               onClick={() => nav("/dashboard")}
-              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.42)", fontWeight: 600, fontSize: 13, cursor: "pointer", padding: "8px 10px", transition: "color 0.18s" }}
+              style={{ display: isMobile ? "none" : "block", background: "none", border: "none", color: "rgba(255,255,255,0.42)", fontWeight: 600, fontSize: 13, cursor: "pointer", padding: "8px 10px", transition: "color 0.18s" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.42)")}
             >
               Acessar
             </button>
-            <button onClick={() => nav("/dashboard")} className="btn-primary" style={{ padding: "10px 22px", fontSize: 13, borderRadius: 10 }}>Crypto Rico PRO</button>
+            <button onClick={() => nav("/dashboard")} className="btn-primary" style={{ padding: isMobile ? "9px 16px" : "10px 22px", fontSize: 13, borderRadius: 10 }}>{isMobile ? "PRO" : "Crypto Rico PRO"}</button>
           </div>
         </div>
       </nav>
@@ -357,14 +370,14 @@ export function LandingPage() {
           zIndex: 1,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`
         }} />
-        <div style={{ position: "relative", zIndex: 10, maxWidth: 860, width: "100%", padding: "0 32px", textAlign: "center" }}>
+        <div style={{ position: "relative", zIndex: 10, maxWidth: 860, width: "100%", padding: isMobile ? "0 16px" : "0 32px", textAlign: "center" }}>
           <div className="su d1 pill" style={{ background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.22)", color: "#FDA4AF", marginBottom: 28, display: "inline-flex", backdropFilter: "blur(8px)" }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#F43F5E", animation: "pulse-em 2s infinite", color: "#F43F5E", flexShrink: 0 }} />
             <span className="tag" style={{ color: "#FDA4AF" }}>Medo Extremo · Índice 12/100 · Oportunidade Detectada</span>
           </div>
-          <h1 className="su d2" style={{ fontSize: "clamp(2.6rem,4.8vw,4.6rem)", fontWeight: 900, letterSpacing: "-0.05em", lineHeight: 1.06, marginBottom: 0, color: "#fff" }}>Todo o caos do mercado,</h1>
+          <h1 className="su d2" style={{ fontSize: isMobile ? "clamp(1.9rem,8vw,2.5rem)" : "clamp(2.6rem,4.8vw,4.6rem)", fontWeight: 900, letterSpacing: "-0.05em", lineHeight: 1.06, marginBottom: 0, color: "#fff" }}>Todo o caos do mercado,</h1>
           <h1 className="su d2" style={{
-            fontSize: "clamp(2.6rem,4.8vw,4.6rem)",
+            fontSize: isMobile ? "clamp(1.9rem,8vw,2.5rem)" : "clamp(2.6rem,4.8vw,4.6rem)",
             fontWeight: 900,
             letterSpacing: "-0.05em",
             lineHeight: 1.06,
@@ -386,7 +399,7 @@ export function LandingPage() {
               Conhecer Plano PRO <ArrowRight size={16} />
             </button>
           </div>
-          <div className="su d5" style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
+          <div className="su d5" style={{ display: "flex", gap: isMobile ? 12 : 20, justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
             {[
               "IA com Score ao vivo",
               "Bot executor automático",
@@ -400,7 +413,7 @@ export function LandingPage() {
             ))}
           </div>
         </div>
-        <div className="su d5" style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 870, padding: "18px 32px 0" }}>
+        <div className="su d5" style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: 870, padding: isMobile ? "18px 16px 0" : "18px 32px 0" }}>
           <div className="term-glow-wrap">
             <div className="terminal-3d" style={{
               borderRadius: 19,
@@ -411,7 +424,7 @@ export function LandingPage() {
               <div style={{
                 background: "rgba(0,0,0,0.45)",
                 borderBottom: "1px solid rgba(255,255,255,0.05)",
-                padding: "13px 22px",
+                padding: isMobile ? "11px 14px" : "13px 22px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between"
@@ -421,17 +434,23 @@ export function LandingPage() {
                     <div key={c} style={{ width: 13, height: 13, borderRadius: "50%", background: c, boxShadow: `0 0 8px ${c}` }} />
                   ))}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: isMobile ? "none" : "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", animation: "pulse-em 2s infinite", color: "#10B981" }} />
                   <span className="tag" style={{ color: "rgba(255,255,255,0.3)" }}>CRYPTO RICO TERMINAL · CONFLUENCE SCANNER LIVE</span>
                 </div>
+                {isMobile && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", animation: "pulse-em 2s infinite", color: "#10B981" }} />
+                    <span className="tag" style={{ color: "rgba(255,255,255,0.3)" }}>SCANNER LIVE</span>
+                  </div>
+                )}
                 <span className="tag" style={{ color: "rgba(255,255,255,0.18)" }}>v8.4</span>
               </div>
-              <div style={{ padding: "26px 28px 22px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, marginBottom: 22 }}>
-                  <div style={{ paddingRight: 24, borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ padding: isMobile ? "18px 14px 16px" : "26px 28px 22px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: isMobile ? 16 : 0, marginBottom: 22 }}>
+                  <div style={{ paddingRight: isMobile ? 0 : 24, paddingBottom: isMobile ? 16 : 0, borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.05)", borderBottom: isMobile ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
                     <div className="tag" style={{ color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>Ativo · BTC/USDT</div>
-                    <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: "-0.045em", marginBottom: 8 }}>$104,820</div>
+                    <div style={{ fontSize: isMobile ? 28 : 34, fontWeight: 900, letterSpacing: "-0.045em", marginBottom: 8 }}>$104,820</div>
                     <div style={{
                       display: "inline-flex",
                       gap: 8,
@@ -445,10 +464,10 @@ export function LandingPage() {
                       <span className="mono" style={{ fontSize: 9, color: "rgba(255,255,255,0.28)" }}>Vol: 42.1B</span>
                     </div>
                   </div>
-                  <div style={{ padding: "0 24px", borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div style={{ padding: isMobile ? "0 0 16px" : "0 24px", borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.05)", borderBottom: isMobile ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
                     <div className="tag" style={{ color: "rgba(255,255,255,0.3)", marginBottom: 10 }}>Sentimento Global</div>
                     <div style={{
-                      fontSize: 34,
+                      fontSize: isMobile ? 28 : 34,
                       fontWeight: 900,
                       color: "#F43F5E",
                       letterSpacing: "-0.04em",
@@ -469,10 +488,10 @@ export function LandingPage() {
                     </div>
                     <div className="tag" style={{ color: "#FDA4AF" }}>Panic Sell · Zona de Compra</div>
                   </div>
-                  <div style={{ paddingLeft: 24, textAlign: "right" }}>
+                  <div style={{ paddingLeft: isMobile ? 0 : 24, textAlign: isMobile ? "left" : "right" }}>
                     <div className="tag" style={{ color: "#10B981", marginBottom: 10 }}>Crypto Rico IA Score</div>
                     <div style={{
-                      fontSize: 44,
+                      fontSize: isMobile ? 34 : 44,
                       fontWeight: 900,
                       color: "#10B981",
                       letterSpacing: "-0.04em",
@@ -536,7 +555,7 @@ export function LandingPage() {
           ))}
         </div>
       </div>
-      <section id="tecnologia" style={{ padding: "96px 40px", position: "relative", overflow: "hidden" }}>
+      <section id="tecnologia" style={{ padding: isMobile ? "56px 16px" : "96px 40px", position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute",
           right: -60,
@@ -546,7 +565,7 @@ export function LandingPage() {
           background: "radial-gradient(circle,rgba(16,185,129,0.08),transparent)",
           pointerEvents: "none"
         }} />
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 28 : 72, alignItems: "center" }}>
           <div>
             <div style={{
               display: "inline-flex",
@@ -589,7 +608,7 @@ export function LandingPage() {
               background: "rgba(6,8,18,0.88)",
               border: "1px solid rgba(255,255,255,0.07)",
               borderRadius: 20,
-              padding: 34,
+              padding: isMobile ? 18 : 34,
               boxShadow: "0 28px 70px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.045)",
               transition: "transform 0.3s ease",
               position: "relative",
@@ -639,7 +658,7 @@ export function LandingPage() {
         </div>
       </section>
       <hr className="divider" />
-      <section id="ia-carteira" style={{ padding: "96px 40px", position: "relative", overflow: "hidden" }}>
+      <section id="ia-carteira" style={{ padding: isMobile ? "56px 16px" : "96px 40px", position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute",
           left: -60,
@@ -649,13 +668,13 @@ export function LandingPage() {
           background: "radial-gradient(circle,rgba(99,102,241,0.09),transparent)",
           pointerEvents: "none"
         }} />
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "center" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 28 : 72, alignItems: "center" }}>
           <div
             style={{
               background: "rgba(6,8,18,0.88)",
               border: "1px solid rgba(255,255,255,0.07)",
               borderRadius: 20,
-              padding: 34,
+              padding: isMobile ? 18 : 34,
               boxShadow: "0 28px 70px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.045)",
               transition: "transform 0.3s ease",
               position: "relative",
@@ -796,13 +815,13 @@ export function LandingPage() {
         </div>
       </section>
       <hr className="divider" />
-      <section id="recursos" style={{ padding: "96px 40px" }}>
+      <section id="recursos" style={{ padding: isMobile ? "56px 16px" : "96px 40px" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 56 }}>
             <h2 style={{ fontSize: "clamp(1.8rem,3vw,2.8rem)", fontWeight: 900, letterSpacing: "-0.045em", marginBottom: 14 }}>A suíte completa de inteligência.</h2>
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", maxWidth: 520, margin: "0 auto" }}>Seis ferramentas que substituem tudo que você paga hoje — num único painel ultrarrápido.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: 14 }}>
             {FEATURES.map((f, i) => {
               const Icon = f.icon;
               return (
@@ -817,16 +836,16 @@ export function LandingPage() {
           </div>
         </div>
       </section>
-      <section id="precos" style={{ padding: "96px 40px", background: "rgba(0,0,0,0.35)", borderTop: "1px solid rgba(255,255,255,0.055)" }}>
+      <section id="precos" style={{ padding: isMobile ? "56px 16px" : "96px 40px", background: "rgba(0,0,0,0.35)", borderTop: "1px solid rgba(255,255,255,0.055)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 56 }}>
             <h2 style={{ fontSize: "clamp(1.8rem,3vw,2.8rem)", fontWeight: 900, letterSpacing: "-0.045em", marginBottom: 14 }}>Escolha seu ponto de entrada.</h2>
             <p style={{ fontSize: 16, color: "rgba(255,255,255,0.4)", maxWidth: 480, margin: "0 auto" }}>Comece de graça ou desbloqueie toda a infraestrutura com o PRO.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, maxWidth: 940, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 20, maxWidth: 940, margin: "0 auto" }}>
             <div className="price-free">
               <div className="tag" style={{ color: "rgba(255,255,255,0.28)", marginBottom: 22 }}>Gratuito</div>
-              <div style={{ fontSize: 64, fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 1, marginBottom: 8 }}>R$ 0</div>
+              <div style={{ fontSize: isMobile ? 54 : 64, fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 1, marginBottom: 8 }}>R$ 0</div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)", marginBottom: 30 }}>Acesso vitalício · sem cartão de crédito</div>
               <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", marginBottom: 26 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 13, marginBottom: 30 }}>
@@ -873,8 +892,8 @@ export function LandingPage() {
               <div className="tag" style={{ color: "#10B981", marginBottom: 22 }}>Crypto Rico PRO</div>
               <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginBottom: 6 }}>
                 <span style={{ fontSize: 22, fontWeight: 700, color: "rgba(255,255,255,0.45)", paddingBottom: 7 }}>R$</span>
-                <span style={{ fontSize: 76, fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 1, color: "#fff" }}>15</span>
-                <span style={{ fontSize: 36, fontWeight: 800, color: "rgba(255,255,255,0.4)", paddingBottom: 5 }}>,90</span>
+                <span style={{ fontSize: isMobile ? 62 : 76, fontWeight: 900, letterSpacing: "-0.055em", lineHeight: 1, color: "#fff" }}>15</span>
+                <span style={{ fontSize: isMobile ? 30 : 36, fontWeight: 800, color: "rgba(255,255,255,0.4)", paddingBottom: 5 }}>,90</span>
                 <span style={{ fontSize: 14, color: "rgba(255,255,255,0.3)", paddingBottom: 9, marginLeft: 2 }}>/mês</span>
               </div>
               <div className="tag" style={{ color: "rgba(255,255,255,0.28)", marginBottom: 24 }}>Ou R$ 129 à vista anual · economize 32%</div>
@@ -897,7 +916,7 @@ export function LandingPage() {
           </div>
         </div>
       </section>
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.055)", padding: "36px 40px", background: "#020308" }}>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.055)", padding: isMobile ? "28px 16px" : "36px 40px", background: "#020308" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{

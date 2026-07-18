@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Seo } from "@/components/Seo";
 import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
 import { MANUAL_ABAS } from "@/lib/manual";
@@ -22,6 +23,10 @@ export default function ManualPage() {
 
   return (
     <div className="min-h-screen bg-[#07080d] text-foreground">
+      <Seo
+        title="Manual da Plataforma — Crypto Rico"
+        description="Guia completo dos indicadores da Crypto Rico: aprenda a ler sinais, dados on-chain, ciclos de mercado e a análise da IA, tudo mastigado para iniciantes."
+      />
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-white/5 bg-black/70 backdrop-blur">
         <div className="max-w-6xl mx-auto flex items-center gap-3 px-4 py-3">

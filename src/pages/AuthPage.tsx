@@ -1,3 +1,4 @@
+import { Seo } from "@/components/Seo";
 import { BrandName } from "@/components/BrandName";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -74,6 +75,10 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Seo
+        title="Entrar — Crypto Rico"
+        description="Acesse a sua conta na Crypto Rico e comece a analisar o mercado de cripto com sinais, dados on-chain e IA."
+      />
       {/* Background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />

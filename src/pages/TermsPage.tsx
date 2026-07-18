@@ -1,3 +1,4 @@
+import { Seo } from "@/components/Seo";
 import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
 import { Zap, ArrowLeft, ScrollText, AlertTriangle } from "lucide-react";
@@ -16,6 +17,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-[#07080d] text-foreground">
+      <Seo
+        title="Termos de Uso — Crypto Rico"
+        description="Leia os Termos de Uso da Crypto Rico antes de usar a plataforma."
+      />
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-white/5 bg-black/70 backdrop-blur">
         <div className="max-w-6xl mx-auto flex items-center gap-3 px-4 py-3">

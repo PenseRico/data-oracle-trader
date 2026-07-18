@@ -1,10 +1,20 @@
 /**
- * Marca "Crypto Rico" com duas cores: Crypto (verde da plataforma) + Rico (branco).
- * Fonte única — muda aqui e reflete em todo lugar.
+ * Marca "CRYPTO RICO" — caixa alta, itálico, fonte Archivo (moderna).
+ * Duas cores: CRYPTO (verde da plataforma) + RICO (branco). Fonte única.
  */
 export function BrandName({ className = "" }: { className?: string }) {
   return (
-    <span className={className} style={{ whiteSpace: "nowrap" }}>
+    <span
+      className={className}
+      style={{
+        fontFamily: '"Archivo", sans-serif',
+        fontStyle: "italic",
+        fontWeight: 900,
+        textTransform: "uppercase",
+        letterSpacing: "-0.03em",
+        whiteSpace: "nowrap",
+      }}
+    >
       <span className="text-primary">Crypto</span>
       <span style={{ color: "#FFFFFF" }}>&nbsp;Rico</span>
     </span>

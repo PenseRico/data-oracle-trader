@@ -1,5 +1,5 @@
 -- =====================================================================
--- ADMIN ÚNICO — Davidson (pensericodigital@gmail.com)
+-- ADMIN ÚNICO — PenseRico (pensericodigital@gmail.com)
 -- Registra o admin por E-MAIL (funciona antes mesmo de ele ter conta;
 -- a partir do momento que logar com esse e-mail, é reconhecido como admin).
 -- Rode isto no Supabase → SQL Editor (cole tudo e "Run"), ou via CLI.
@@ -13,7 +13,7 @@ create table if not exists public.admins (
 );
 
 insert into public.admins (email, nome)
-values ('pensericodigital@gmail.com', 'Davidson')
+values ('pensericodigital@gmail.com', 'PenseRico')
 on conflict (email) do update set nome = excluded.nome;
 
 alter table public.admins enable row level security;
