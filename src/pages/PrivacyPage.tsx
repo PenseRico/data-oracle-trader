@@ -24,7 +24,7 @@ function LegalBase({ children }: { children: React.ReactNode }) {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#07080d] text-foreground">
+    <div className="h-screen overflow-y-auto overflow-x-hidden bg-[#07080d] text-foreground">
       <Seo
         title="Política de Privacidade — Crypto Rico"
         description="Saiba como a Crypto Rico coleta, usa e protege os seus dados."

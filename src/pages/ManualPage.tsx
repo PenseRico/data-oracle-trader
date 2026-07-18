@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Seo } from "@/components/Seo";
 import { BrandName } from "@/components/BrandName";
 import { Link } from "react-router-dom";
@@ -20,9 +20,11 @@ function PlanoBadge({ plano }: { plano: "Grátis" | "Pro" }) {
 export default function ManualPage() {
   const [abaAtiva, setAbaAtiva] = useState(MANUAL_ABAS[0]?.id ?? "comecando");
   const aba = MANUAL_ABAS.find((a) => a.id === abaAtiva) ?? MANUAL_ABAS[0];
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const totalTelas = MANUAL_ABAS.reduce((n, a) => n + a.paginas.length, 0);
 
   return (
-    <div className="min-h-screen bg-[#07080d] text-foreground">
+    <div ref={scrollRef} className="h-screen overflow-y-auto overflow-x-hidden bg-[#07080d] text-foreground">
       <Seo
         title="Manual da Plataforma — Crypto Rico"
         description="Guia completo dos indicadores da Crypto Rico: aprenda a ler sinais, dados on-chain, ciclos de mercado e a análise da IA, tudo mastigado para iniciantes."
@@ -38,21 +40,28 @@ export default function ManualPage() {
           </Link>
           <span className="text-muted-foreground/40">/</span>
           <span className="text-sm font-bold uppercase tracking-widest text-white/80">Manual</span>
-          <Link to="/dashboard" className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary/15 border border-primary/30 text-primary text-xs font-bold px-3 py-1.5 hover:bg-primary/25 transition-colors">
+          <Link to="/dashboard" className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary text-black text-xs font-black px-4 py-2 hover:brightness-110 transition-all shadow-[0_0_22px_-6px_hsl(var(--primary))]">
             Abrir plataforma <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Intro */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-11 w-11 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shadow-glow">
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-display font-black text-3xl tracking-tight text-white">Manual da Plataforma</h1>
-            <p className="text-sm text-muted-foreground">Cada tela e cada indicador, explicado de forma simples — mastigado pra você.</p>
+        {/* Intro / hero */}
+        <div className="mb-8">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/25 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-primary mb-3">
+            <BookOpen className="h-3 w-3" /> Guia da plataforma
+          </span>
+          <h1 className="font-display font-black text-4xl md:text-5xl tracking-tight text-white mb-2">Manual da Plataforma</h1>
+          <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
+            Cada tela e cada indicador, explicado de forma simples — <span className="text-white/80">mastigado pra você.</span>
+          </p>
+          <div className="flex items-center gap-3 mt-4 text-[11px] font-mono text-muted-foreground/60">
+            <span className="text-primary/80">{MANUAL_ABAS.length} seções</span>
+            <span className="h-1 w-1 rounded-full bg-white/20" />
+            <span className="text-primary/80">{totalTelas} telas</span>
+            <span className="h-1 w-1 rounded-full bg-white/20" />
+            <span>indicadores explicados</span>
           </div>
         </div>
 
@@ -62,7 +71,7 @@ export default function ManualPage() {
             {MANUAL_ABAS.map((a) => (
               <button
                 key={a.id}
-                onClick={() => { setAbaAtiva(a.id); window.scrollTo({ top: 0 }); }}
+                onClick={() => { setAbaAtiva(a.id); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
                 className={`shrink-0 rounded-lg px-3.5 py-2 text-[12px] font-bold transition-colors border ${
                   a.id === abaAtiva
                     ? "bg-primary/15 border-primary/30 text-primary"

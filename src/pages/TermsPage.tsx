@@ -16,7 +16,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#07080d] text-foreground">
+    <div className="h-screen overflow-y-auto overflow-x-hidden bg-[#07080d] text-foreground">
       <Seo
         title="Termos de Uso — Crypto Rico"
         description="Leia os Termos de Uso da Crypto Rico antes de usar a plataforma."
