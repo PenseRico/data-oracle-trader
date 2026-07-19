@@ -73,10 +73,19 @@ export default async function handler(req: any, res: any) {
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
     const model = ALLOWED.has(body.model) ? body.model : "openai/gpt-4o-mini";
-    const messages = Array.isArray(body.messages) ? body.messages : [];
+    // Sanitiza e LIMITA o input (evita drenar créditos com prompt gigante).
+    const messages = (Array.isArray(body.messages) ? body.messages : [])
+      .filter((m: any) => m && typeof m.content === "string" && ["system", "user", "assistant"].includes(m.role))
+      .slice(0, 12)
+      .map((m: any) => ({ role: m.role, content: m.content.slice(0, 8000) }));
     const max_tokens = Math.min(Math.max(Number(body.max_tokens) || 800, 64), 1500);
     if (!messages.length) {
-      res.status(400).json({ error: "messages vazio" });
+      res.status(400).json({ error: "messages vazio ou inválido" });
+      return;
+    }
+    const totalChars = messages.reduce((n: number, m: any) => n + m.content.length, 0);
+    if (totalChars > 24000) {
+      res.status(413).json({ error: "Entrada muito longa." });
       return;
     }
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -87,6 +96,7 @@ export default async function handler(req: any, res: any) {
     const data = await r.json();
     res.status(r.status).json(data);
   } catch (e) {
-    res.status(500).json({ error: String(e) });
+    console.error("ai-proxy error:", e);
+    res.status(500).json({ error: "Erro ao processar a solicitação." });
   }
 }

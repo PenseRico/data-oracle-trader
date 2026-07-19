@@ -6,7 +6,6 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   base: "/",
   server: {
-    host: true, // escuta em 0.0.0.0 + :: → acessível por outras máquinas da rede
     port: 8080,
     strictPort: false,
     hmr: {
