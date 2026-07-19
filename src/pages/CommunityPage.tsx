@@ -9,8 +9,8 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SetupFeed } from "@/components/community/SetupFeed";
 
-// 🔗 TROQUE pelo link do SEU grupo do Telegram:
-const TELEGRAM_URL = "https://t.me/cryptorico";
+// 🔗 Link do grupo/perfil do Telegram:
+const TELEGRAM_URL = "https://t.me/PenseRico";
 
 interface Message {
   id: string;
