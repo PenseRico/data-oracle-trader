@@ -34,10 +34,10 @@ export default function AlertsPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ coin: "any", rule_type: "score", rule_value: "8", direction: "above", signal_type: "buy" });
 
-  useEffect(() => { if (user) fetchAlerts(); }, [user]);
+  useEffect(() => { if (user) fetchAlerts(); }, [user?.id]);
 
   async function fetchAlerts() {
-    const { data } = await supabase.from("alerts").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("alerts").select("*").order("created_at", { ascending: false }).limit(100);
     if (data) setAlerts(data as Alert[]);
   }
 
@@ -60,7 +60,7 @@ export default function AlertsPage() {
 
   async function toggleAlert(id: string, current: boolean) {
     await supabase.from("alerts").update({ is_active: !current }).eq("id", id);
-    fetchAlerts();
+    setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, is_active: !current } : a)));
   }
 
   async function deleteAlert(id: string) {

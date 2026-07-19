@@ -91,10 +91,10 @@ export default function CommunityPage() {
   async function fetchMessages() {
     const { data } = await supabase
       .from("messages")
-      .select("*, profiles(username, avatar_url)")
-      .order("created_at", { ascending: true })
+      .select("id, user_id, content, image_url, created_at, profiles(username, avatar_url)")
+      .order("created_at", { ascending: false })
       .limit(200);
-    if (data) setMessages(data as unknown as Message[]);
+    if (data) setMessages((data as unknown as Message[]).reverse());
   }
   async function fetchSingleMessage(id: string) {
     const { data } = await supabase.from("messages").select("*, profiles(username, avatar_url)").eq("id", id).single();

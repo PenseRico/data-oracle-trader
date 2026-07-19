@@ -44,7 +44,8 @@ export function SetupFeed() {
       const { data, error } = await supabase
         .from("setups")
         .select("*, profiles(username, avatar_url)")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       setSetups(data as unknown as Setup[]);

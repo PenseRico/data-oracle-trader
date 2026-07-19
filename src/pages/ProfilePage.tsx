@@ -15,11 +15,12 @@ export default function ProfilePage() {
     if (user) {
       fetchStats();
     }
-  }, [user]);
+  }, [user?.id]);
 
   async function fetchStats() {
-    const { count: alertsCount } = await supabase.from("alerts").select("*", { count: "exact", head: true });
-    const { count: setupsCount } = await supabase.from("setups").select("*", { count: "exact", head: true });
+    if (!user) return;
+    const { count: alertsCount } = await supabase.from("alerts").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    const { count: setupsCount } = await supabase.from("setups").select("id", { count: "exact", head: true }).eq("user_id", user.id);
     
     setStats({
       alerts: alertsCount || 0,
