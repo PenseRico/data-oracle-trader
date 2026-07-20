@@ -78,15 +78,17 @@ begin
 end;
 $$;
 
--- ESTORNA (se a IA falhar depois de consumir).
-create or replace function public.refund_quota(p_action text)
+-- ESTORNA (se a IA falhar depois de consumir). SÓ O SERVIDOR chama, via service_role:
+-- recebe o user_id explícito (auth.uid() é null sob service_role) e é REVOGADA do cliente
+-- lá embaixo — assim o usuário NÃO consegue zerar a própria cota pelo navegador.
+drop function if exists public.refund_quota(text);
+create or replace function public.refund_quota(p_user uuid, p_action text)
 returns void
 language plpgsql security definer set search_path = public as $$
-declare v_user uuid := auth.uid();
 begin
-  if v_user is null then return; end if;
+  if p_user is null then return; end if;
   update public.ai_usage set count = greatest(0, count - 1)
-  where user_id = v_user and action = p_action;
+  where user_id = p_user and action = p_action;
 end;
 $$;
 
@@ -113,8 +115,16 @@ begin
 end;
 $$;
 
-grant execute on function public.consume_quota(text)  to authenticated;
-grant execute on function public.refund_quota(text)   to authenticated;
-grant execute on function public.quota_status(text)   to authenticated;
+-- Permissões: tira tudo de PUBLIC (que inclui o role anon) e concede o mínimo necessário.
+-- consume_quota/quota_status usam auth.uid() → só mexem/leem a linha do PRÓPRIO dono
+-- (seguro expor a 'authenticated'; consumir por conta própria é auto-DoS, sem ganho).
+-- refund_quota é a única perigosa (decrementa) → SÓ service_role (servidor).
+revoke all on function public.consume_quota(text)        from public;
+revoke all on function public.quota_status(text)          from public;
+revoke all on function public.refund_quota(uuid, text)    from public;
+grant execute on function public.consume_quota(text)      to authenticated;
+grant execute on function public.quota_status(text)       to authenticated;
+grant execute on function public.refund_quota(uuid, text) to service_role;
 
 -- Pronto: Pro = carteira 1x/semana + demais IA 1x/dia, zerando à meia-noite de SP.
+-- (refund_quota fechada pro cliente; estorno só pelo servidor com a service_role.)

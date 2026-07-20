@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { type PositionStudy, fichaParaIA, aplicarRespostaIA } from "@/lib/positionStudy";
 
 const PROXY_URL = "/api/ai-proxy";
 
@@ -92,4 +93,44 @@ export async function analisarCarteira(holdings: HoldingReading[]): Promise<stri
     { role: "user", content: `Analise a minha carteira (dados reais de agora):\n${linhas}` },
   ];
   return aiChat(messages, { action: "carteira" });
+}
+
+/**
+ * ESTUDO POR POSIÇÃO — 3 horizontes (curto/médio/longo) por moeda.
+ * A IA só REFINA a palavra do veredito (dentro do conjunto permitido) e escreve 1 linha de porquê.
+ * Os números/zonas vêm do código. Se a IA falhar (fora cota), volta em modo só-código.
+ */
+const POSITION_PLAYBOOK = `
+Você é um analista de cripto disciplinado. Recebe POSIÇÕES que a pessoa JÁ TEM, cada uma com 3 horizontes
+(curto = dias, médio = semanas, longo = meses) e uma "sugestão do sistema" já calculada pelos indicadores reais.
+
+Sua tarefa, POR moeda e POR horizonte:
+1) Escolha o VEREDITO final EXATAMENTE entre: "Segurar", "Realizar parcial", "Vender", "Aumentar".
+   - Em geral concorde com a sugestão do sistema; só mude se a leitura pedir claramente.
+   - A pessoa JÁ POSSUI a moeda: NUNCA recomende "Vender" tudo por leviandade — prefira "Realizar parcial".
+2) Escreva "porque": UMA frase curta (≤140 caracteres), em português simples e mastigado, dizendo o motivo.
+   NUNCA invente preço, RSI ou número que não veio nos dados. Não dê ordem — é ponto de estudo.
+
+Responda SOMENTE com JSON válido, sem texto fora dele, neste formato exato:
+{"moedas":[{"symbol":"BTC","curto":{"veredito":"Segurar","porque":"..."},"medio":{"veredito":"...","porque":"..."},"longo":{"veredito":"...","porque":"..."}}]}
+`.trim();
+
+export async function analisarPosicoes(
+  studies: PositionStudy[],
+): Promise<{ studies: PositionStudy[]; usouIA: boolean }> {
+  if (!studies.length) return { studies, usouIA: false };
+  const fichas = studies.slice(0, 20).map(fichaParaIA).join("\n\n");
+  const messages: Msg[] = [
+    { role: "system", content: POSITION_PLAYBOOK },
+    { role: "user", content: `Minhas posições (dados reais de agora):\n${fichas}\n\nResponda SÓ com o JSON pedido.` },
+  ];
+  try {
+    const raw = await aiChat(messages, { action: "carteira", maxTokens: 1300 });
+    const { studies: refinadas, refinados } = aplicarRespostaIA(studies, raw);
+    // Se a IA respondeu mas nada foi refinado (prosa/JSON inválido), tratamos como "não usou IA".
+    return { studies: refinadas, usouIA: refinados > 0 };
+  } catch (e) {
+    if (e instanceof QuotaError) throw e; // sem cota → tela mostra o timer
+    return { studies, usouIA: false }; // IA caiu (cota já estornada no proxy) → cartões só-código
+  }
 }

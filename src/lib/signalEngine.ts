@@ -68,6 +68,7 @@ export interface EnrichedCoin extends CoinGeckoMarket {
   signal: SignalScore;
   volumeRatio: number;
   shortTerm?: SetupEvaluation;
+  midTerm?: SetupEvaluation;
   longTerm?: SetupEvaluation;
 }
 
@@ -312,6 +313,7 @@ export function enrichCoins(
     return {
       ...enriched,
       shortTerm: evaluateShortTermSetup(enriched),
+      midTerm: evaluateMidTermSetup(enriched),
       longTerm: evaluateLongTermSetup(enriched),
     };
   });
@@ -391,31 +393,92 @@ export function evaluateShortTermSetup(coin: EnrichedCoin): SetupEvaluation {
   return { isActive: false, type: "NEUTRAL", confidence: 0, reasons: ["Ativo lateralizado ou fora das zonas ótimas de scalp."] };
 }
 
+/**
+ * Setup de MÉDIO PRAZO (swing de dias/semanas). Fica entre o curto (MA10/20/80,
+ * intradiário) e o longo (MA50/100/200, macro): usa MA20 vs MA50 como filtro de
+ * tendência + RSI + retração de Fibonacci + MACD. Espelha a estrutura dos outros dois.
+ */
+export function evaluateMidTermSetup(coin: EnrichedCoin): SetupEvaluation {
+  let confidence = 0;
+  const reasons: string[] = [];
+  const price = coin.current_price;
+  const rsi = coin.indicators.rsi;
+
+  // Tendência de médio prazo: MA20 acima da MA50 = swing de alta.
+  const swingUptrend = coin.ma20 > coin.ma50;
+  const swingDowntrend = coin.ma20 < coin.ma50;
+
+  if (swingUptrend && price > coin.ma50) {
+    // Pullback à zona de swing (entre MA20 e MA50) numa tendência de alta.
+    if (price <= coin.ma20 * 1.02 && price >= coin.ma50 * 0.98) {
+      confidence += 45;
+      reasons.push("Preço recuou para a zona de swing (MA20–MA50) dentro de uma tendência de alta.");
+    }
+    if (rsi < 45) {
+      confidence += 25;
+      reasons.push("RSI ainda contido numa tendência de alta de médio prazo (fôlego para subir).");
+    }
+    // Retração de Fibonacci 0.382–0.5 (recompra profunda de swing; níveis medidos do topo).
+    if (price >= coin.indicators.fib[0.382] * 0.97 && price <= coin.indicators.fib[0.5] * 1.03) {
+      confidence += 20;
+      reasons.push("Preço na zona de retração 0.382–0.5 de Fibonacci (recompra de swing).");
+    }
+    if (coin.indicators.macd.histogram > 0) {
+      confidence += 10;
+      reasons.push("MACD retomando força compradora no médio prazo.");
+    }
+    if (confidence >= 55) return { isActive: true, type: "BUY", confidence, reasons };
+  }
+
+  if (swingDowntrend && price < coin.ma50) {
+    // Reteste da MA20–MA50 como resistência numa tendência de baixa.
+    if (price >= coin.ma20 * 0.98 && price <= coin.ma50 * 1.02) {
+      confidence += 45;
+      reasons.push("Reteste da MA20–MA50 como resistência dentro de uma tendência de baixa.");
+    }
+    if (rsi > 58) {
+      confidence += 25;
+      reasons.push("RSI esticado dentro de um médio prazo baixista (risco de nova perna de queda).");
+    }
+    if (coin.indicators.macd.histogram < 0) {
+      confidence += 10;
+      reasons.push("MACD reforçando a pressão vendedora no swing.");
+    }
+    if (confidence >= 55) return { isActive: true, type: "SELL", confidence, reasons };
+  }
+
+  return { isActive: false, type: "NEUTRAL", confidence: 0, reasons: ["Sem assimetria clara de swing no médio prazo (mercado no meio do canal)."] };
+}
+
 export function evaluateLongTermSetup(coin: EnrichedCoin): SetupEvaluation {
   let confidence = 0;
   const reasons: string[] = [];
   const price = coin.current_price;
 
-  // Condições Swing / Holder
-  const macroUptrend = coin.ma50 > coin.ma200;
-  
+  // Condições Swing / Holder.
+  // IMPORTANTE: a MA200 NÃO é confiável aqui — o sparkline tem ~168 pontos (7d horário) < 200,
+  // então calculateSMA(…,200) devolve o último preço e o regime ficava INVERTIDO. Usamos MA50 vs
+  // MA100 (ambas calculáveis) como âncora macro, e a MA100 como suporte profundo de longo prazo.
+  const macroUptrend = coin.ma50 > coin.ma100;
+  // Golden pocket (retração 0.618 medida do TOPO) = low + 0.382*range no nosso Fib (fib[0.382]).
+  const goldenPocket = coin.indicators.fib[0.382];
+
   if (macroUptrend) {
-    // Acumulação na MA100 ou MA200
-    if (price <= coin.ma100 * 1.05 && price >= coin.ma200 * 0.95) {
+    // Acumulação: preço corrigiu para a zona de suporte de longo prazo (entre MA100 e MA50).
+    if (price <= coin.ma50 * 1.03 && price >= coin.ma100 * 0.95) {
       confidence += 50;
-      reasons.push("Preço corrigiu para a zona de suporte vital (MA100 - MA200). Setup clássico institucional.");
+      reasons.push("Preço corrigiu para a zona de suporte de longo prazo (MA100–MA50). Setup clássico de acúmulo.");
     }
-    
-    // RSI Diário
+
     if (coin.indicators.rsi < 35) {
       confidence += 30;
-      reasons.push("RSI Diário em sobrevenda durante uma Macro Tendência de Alta.");
+      reasons.push("RSI em sobrevenda durante uma tendência macro de alta.");
     }
-    
-    // Fib Retracement
-    if (price <= coin.indicators.fib[0.618] * 1.05 && price >= coin.indicators.fib[0.618] * 0.95) {
+
+    // Fib Retracement (golden pocket profundo).
+    if (goldenPocket && price <= goldenPocket * 1.05 && price >= goldenPocket * 0.95) {
       confidence += 20;
-      reasons.push("Preço atingiu a Retração de Ouro (Golden Pocket 0.618).");
+      reasons.push("Preço na Retração de Ouro (golden pocket ~0.618).");
     }
   }
 
@@ -423,13 +486,13 @@ export function evaluateLongTermSetup(coin: EnrichedCoin): SetupEvaluation {
   if (!macroUptrend) {
     if (price >= coin.ma50 * 0.95 && price <= coin.ma100 * 1.05) {
       confidence += 50;
-      reasons.push("Reteste da MA50/MA100 como resistência. Ponto de distribuição massiva.");
+      reasons.push("Reteste da MA50/MA100 como resistência. Zona de distribuição.");
     }
     if (coin.indicators.rsi > 65) {
       confidence += 30;
-      reasons.push("RSI Diário mostra euforia em mercado urso (Bear Market Rally).");
+      reasons.push("RSI em euforia dentro de um mercado macro de baixa (repique de baixa).");
     }
-    
+
     if (confidence >= 65) {
       return { isActive: true, type: "SELL", confidence, reasons };
     }

@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { InfoHint } from "@/components/dashboard/InfoHint";
 import { TrendBadge } from "@/components/dashboard/TrendBadge";
 import { useMarkets, calculateRSI, type CoinGeckoMarket } from "@/lib/api/coingecko";
-import { computeTrend } from "@/lib/trend";
-import { analisarCarteira, QuotaError } from "@/lib/aiReader";
+import { enrichCoins } from "@/lib/signalEngine";
+import { buildPositionStudy, type PositionStudy, type HorizonRead, type Veredito } from "@/lib/positionStudy";
+import { analisarPosicoes, QuotaError } from "@/lib/aiReader";
 import { useQuota } from "@/hooks/useQuota";
-import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2, Pencil, Check, X, Clock, Lock } from "lucide-react";
+import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2, Pencil, Check, X, Clock, Lock, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 /** Um LOTE = uma compra. A mesma moeda pode ter vários lotes. */
 interface Lot {
@@ -45,10 +46,12 @@ function loadLots(): Lot[] {
 }
 
 function fmtUsd(n: number): string {
-  if (n >= 1000) return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  if (n >= 1) return `$${n.toFixed(2)}`;
-  if (n >= 0.01) return `$${n.toFixed(4)}`;
-  return `$${n.toFixed(6)}`;
+  const s = n < 0 ? "-" : "";
+  const a = Math.abs(n);
+  if (a >= 1000) return `${s}$${a.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  if (a >= 1) return `${s}$${a.toFixed(2)}`;
+  if (a >= 0.01) return `${s}$${a.toFixed(4)}`;
+  return `${s}$${a.toFixed(6)}`;
 }
 
 /** Leitura real (sem IA): estado + zona de venda/recompra a partir do sparkline. */
@@ -59,7 +62,7 @@ function readCoin(coin: CoinGeckoMarket) {
   const high = recent.length ? Math.max(...recent) : coin.current_price;
   const low = recent.length ? Math.min(...recent) : coin.current_price;
   const price = coin.current_price;
-  const sellZone = Math.max(high, price) * 1.0;
+  const sellZone = Math.max(high, price * 1.005); // margem pra zona de venda nunca ser == preço atual
   const rebuyZone = Math.min(low, price) * 0.995;
   const estado =
     rsi >= 70 ? "Sobrecomprado — atenção a realização" : rsi <= 30 ? "Sobrevendido — possível acúmulo" : "Neutro";
@@ -151,29 +154,31 @@ export default function MinhaCarteiraPage() {
 
   // ── IA (cota Pro: 1 estudo da carteira por semana, travado no servidor) ──
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [studies, setStudies] = useState<PositionStudy[] | null>(null);
+  const [usouIA, setUsouIA] = useState(true);
   const [aiError, setAiError] = useState<string | null>(null);
   const quota = useQuota("carteira");
 
+  // O estudo é um snapshot; se a carteira muda (adiciona/edita/apaga), invalida — evita
+  // cartão de moeda já removida ou desatualizado na tela.
+  useEffect(() => { setStudies(null); }, [lots]);
+
   const runAI = async () => {
-    setAiLoading(true); setAiError(null); setAiResult(null);
+    setAiLoading(true); setAiError(null); setStudies(null);
     try {
-      const payload = coins
-        .filter((c) => c.coin)
+      const held = coins.filter((c) => c.coin);
+      if (!held.length) { setAiError("Adicione moedas válidas antes de analisar."); return; }
+      // Enriquece só as moedas que a pessoa TEM (RSI, médias, setups curto/médio/longo).
+      const enriched = enrichCoins(held.map((c) => c.coin!));
+      const bySym = new Map(enriched.map((e) => [e.symbol.toUpperCase(), e]));
+      const base = held
         .map((c) => {
-          const reading = readCoin(c.coin!);
-          const t = computeTrend(c.coin!.sparkline_in_7d?.price);
-          return {
-            symbol: c.symbol,
-            price: Number(c.price.toFixed(c.price >= 1 ? 2 : 6)),
-            rsi: reading.rsi,
-            trend: t?.dir ?? "LATERAL",
-            qty: c.totalQty,
-            pnlPct: c.invested > 0 ? c.pnlPct : undefined,
-          };
-        });
-      if (!payload.length) { setAiError("Adicione moedas válidas antes de analisar."); return; }
-      setAiResult(await analisarCarteira(payload));
+          const e = bySym.get(c.symbol.toUpperCase());
+          return e ? buildPositionStudy(e, c.avgPrice, c.invested > 0 ? c.pnlPct : undefined) : null;
+        })
+        .filter((s): s is PositionStudy => s !== null);
+      const { studies: out, usouIA: used } = await analisarPosicoes(base);
+      setStudies(out); setUsouIA(used);
       quota.refresh(); // consumiu 1 → atualiza o timer
     } catch (e: any) {
       if (e instanceof QuotaError) {
@@ -271,9 +276,17 @@ export default function MinhaCarteiraPage() {
           {aiError && (
             <div className="text-[11px] text-rose-300/90 font-mono bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">{aiError}</div>
           )}
-          {aiResult && (
-            <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-foreground/90 bg-black/40 border border-white/5 rounded-lg p-4 font-sans">
-              {aiResult}
+          {studies && studies.length > 0 && (
+            <div className="space-y-3">
+              {!usouIA && (
+                <div className="text-[10px] text-amber-300/80 font-mono bg-amber-500/5 border border-amber-500/20 rounded-lg px-3 py-2">
+                  IA indisponível agora — mostrando a leitura automática pelos indicadores (sua cota não foi gasta).
+                </div>
+              )}
+              {studies.map((s) => <PositionStudyCard key={s.symbol} s={s} />)}
+              <p className="text-[10px] text-center text-muted-foreground/50 font-mono pt-1">
+                ⚠️ Não é recomendação de investimento — a decisão e o risco são seus.
+              </p>
             </div>
           )}
         </section>
@@ -397,6 +410,60 @@ function Line({ label, value, tone, icon: Icon }: { label: string; value: string
         {Icon && <Icon className="h-3 w-3" />} {label}
       </span>
       <span className={`text-[12px] font-black font-mono ${tone}`}>{value}</span>
+    </div>
+  );
+}
+
+// ── Estudo da IA por posição: 3 cartões (curto/médio/longo) por moeda ──
+const VEREDITO_STYLE: Record<Veredito, { badge: string; icon: React.ComponentType<{ className?: string }> }> = {
+  "Segurar": { badge: "bg-sky-500/15 text-sky-300 border-sky-500/30", icon: Minus },
+  "Aumentar": { badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30", icon: TrendingUp },
+  "Realizar parcial": { badge: "bg-amber-500/15 text-amber-300 border-amber-500/30", icon: TrendingDown },
+  "Vender": { badge: "bg-rose-500/15 text-rose-300 border-rose-500/30", icon: TrendingDown },
+};
+
+function HorizonCard({ h }: { h: HorizonRead }) {
+  const st = VEREDITO_STYLE[h.veredito];
+  const Icon = st.icon;
+  return (
+    <div className="flex-1 min-w-[150px] rounded-lg border border-white/5 bg-black/30 p-3 space-y-2">
+      <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">{h.titulo}</div>
+      <div className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-wide ${st.badge}`}>
+        <Icon className="h-3 w-3" /> {h.veredito}
+      </div>
+      <p className="text-[11px] leading-snug text-foreground/80">{h.porque}</p>
+      <div className="space-y-1 pt-1 border-t border-white/5">
+        <Line label="Zona de venda" value={fmtUsd(h.sellZone)} tone="text-rose-300/90" />
+        <Line label="Zona de recompra" value={fmtUsd(h.rebuyZone)} tone="text-emerald-300/90" />
+      </div>
+    </div>
+  );
+}
+
+function PositionStudyCard({ s }: { s: PositionStudy }) {
+  const pnl = s.pnlPct ?? 0;
+  return (
+    <div className="glass-card rounded-xl border-white/10 bg-white/[0.02] p-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-black text-white">{s.symbol}</span>
+          <span className="text-[11px] font-mono text-muted-foreground/70">{fmtUsd(s.price)}</span>
+          <span className="text-[10px] font-mono text-muted-foreground/50">RSI {Math.round(s.rsi)}</span>
+        </div>
+        {s.avgPrice > 0 ? (
+          <span className="text-[11px] font-mono">
+            <span className="text-muted-foreground/50">médio {fmtUsd(s.avgPrice)} · </span>
+            <span className={pnl >= 0 ? "text-emerald-300" : "text-rose-300"}>{pnl >= 0 ? "+" : ""}{pnl.toFixed(1)}%</span>
+          </span>
+        ) : (
+          <span className="text-[10px] font-mono text-muted-foreground/40">sem preço de compra</span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <HorizonCard h={s.curto} />
+        <HorizonCard h={s.medio} />
+        <HorizonCard h={s.longo} />
+      </div>
     </div>
   );
 }
