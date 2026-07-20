@@ -9,7 +9,21 @@ const PROXY_URL = "/api/ai-proxy";
 
 interface Msg { role: "system" | "user" | "assistant"; content: string; }
 
-async function aiChat(messages: Msg[], model = "openai/gpt-4o-mini", maxTokens = 900): Promise<string> {
+/** Erro de cota esgotada — carrega quando a IA libera de novo (pra tela mostrar o timer). */
+export class QuotaError extends Error {
+  resetAt: string | null;
+  constructor(message: string, resetAt: string | null) {
+    super(message);
+    this.name = "QuotaError";
+    this.resetAt = resetAt;
+  }
+}
+
+async function aiChat(
+  messages: Msg[],
+  opts: { model?: string; maxTokens?: number; action?: string } = {},
+): Promise<string> {
+  const { model = "openai/gpt-4o-mini", maxTokens = 900, action = "ia" } = opts;
   // Manda o token da sessão pro proxy validar (evita proxy aberto / abuso de créditos).
   const { data: { session } } = await supabase.auth.getSession();
   const r = await fetch(PROXY_URL, {
@@ -18,9 +32,15 @@ async function aiChat(messages: Msg[], model = "openai/gpt-4o-mini", maxTokens =
       "Content-Type": "application/json",
       ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
     },
-    body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens, action }),
   });
   const d = await r.json().catch(() => ({ error: "resposta inválida da IA" }));
+  if (r.status === 429 && d?.quota) {
+    throw new QuotaError(
+      typeof d.error === "string" ? d.error : "Você já usou a análise deste período.",
+      d.reset_at ?? null,
+    );
+  }
   if (d.error) throw new Error(typeof d.error === "string" ? d.error : d.error.message ?? "erro na IA");
   return d.choices?.[0]?.message?.content ?? "";
 }
@@ -71,5 +91,5 @@ export async function analisarCarteira(holdings: HoldingReading[]): Promise<stri
     { role: "system", content: PLAYBOOK },
     { role: "user", content: `Analise a minha carteira (dados reais de agora):\n${linhas}` },
   ];
-  return aiChat(messages);
+  return aiChat(messages, { action: "carteira" });
 }

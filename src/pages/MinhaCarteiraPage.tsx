@@ -8,8 +8,9 @@ import { InfoHint } from "@/components/dashboard/InfoHint";
 import { TrendBadge } from "@/components/dashboard/TrendBadge";
 import { useMarkets, calculateRSI, type CoinGeckoMarket } from "@/lib/api/coingecko";
 import { computeTrend } from "@/lib/trend";
-import { analisarCarteira } from "@/lib/aiReader";
-import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2, Pencil, Check, X } from "lucide-react";
+import { analisarCarteira, QuotaError } from "@/lib/aiReader";
+import { useQuota } from "@/hooks/useQuota";
+import { Wallet, Plus, Trash2, Target, ShieldAlert, Crosshair, Sparkles, Loader2, Pencil, Check, X, Clock, Lock } from "lucide-react";
 
 /** Um LOTE = uma compra. A mesma moeda pode ter vários lotes. */
 interface Lot {
@@ -148,10 +149,11 @@ export default function MinhaCarteiraPage() {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // ── IA (Pro) ──
+  // ── IA (cota Pro: 1 estudo da carteira por semana, travado no servidor) ──
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<string | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
+  const quota = useQuota("carteira");
 
   const runAI = async () => {
     setAiLoading(true); setAiError(null); setAiResult(null);
@@ -172,8 +174,14 @@ export default function MinhaCarteiraPage() {
         });
       if (!payload.length) { setAiError("Adicione moedas válidas antes de analisar."); return; }
       setAiResult(await analisarCarteira(payload));
+      quota.refresh(); // consumiu 1 → atualiza o timer
     } catch (e: any) {
-      setAiError(e?.message ?? "erro na IA");
+      if (e instanceof QuotaError) {
+        setAiError("Você já usou o estudo da carteira desta semana.");
+        quota.refresh();
+      } else {
+        setAiError(e?.message ?? "erro na IA");
+      }
     } finally {
       setAiLoading(false);
     }
@@ -237,17 +245,28 @@ export default function MinhaCarteiraPage() {
               <Sparkles className="h-5 w-5 text-primary" />
               <div>
                 <h3 className="text-sm font-black uppercase tracking-widest text-white">Análise por IA</h3>
-                <p className="text-[10px] text-muted-foreground/70 font-mono">A IA lê sua carteira e dá venda/recompra + cenários</p>
+                <p className="text-[10px] text-muted-foreground/70 font-mono">
+                  A IA lê sua carteira e dá venda/recompra + cenários · <span className="text-primary/80">1 estudo por semana (Pro)</span>
+                </p>
               </div>
             </div>
-            <button
-              onClick={runAI}
-              disabled={aiLoading || coins.length === 0}
-              className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {aiLoading ? "Analisando…" : "Analisar com IA"}
-            </button>
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={runAI}
+                disabled={aiLoading || coins.length === 0 || quota.exhausted}
+                className="flex items-center gap-2 rounded-lg bg-primary/15 border border-primary/40 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/25 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : quota.exhausted ? <Lock className="h-4 w-4" />
+                  : <Sparkles className="h-4 w-4" />}
+                {aiLoading ? "Analisando…" : quota.exhausted ? "Cota usada" : "Analisar com IA"}
+              </button>
+              {quota.exhausted && quota.eta && (
+                <span className="flex items-center gap-1 text-[10px] font-mono text-amber-300/80">
+                  <Clock className="h-3 w-3" /> próximo estudo em {quota.eta}
+                </span>
+              )}
+            </div>
           </div>
           {aiError && (
             <div className="text-[11px] text-rose-300/90 font-mono bg-rose-500/5 border border-rose-500/20 rounded-lg p-3">{aiError}</div>

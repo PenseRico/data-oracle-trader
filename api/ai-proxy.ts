@@ -38,6 +38,30 @@ async function verifyUser(token: string): Promise<string | null> {
   }
 }
 
+// Chama uma função (RPC) do Supabase com o token do PRÓPRIO usuário.
+// consume_quota/refund_quota são SECURITY DEFINER e leem auth.uid() do token —
+// por isso NÃO precisa de service_role: a trava roda no banco, o cliente não burla.
+async function callRpc(fn: string, token: string, args: Record<string, unknown>): Promise<any> {
+  const url = process.env.VITE_SUPABASE_URL;
+  const anon = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !anon) return null;
+  try {
+    const r = await fetch(`${url}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: {
+        apikey: anon,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(args),
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method === "OPTIONS") {
     res.status(200).end();
@@ -88,11 +112,39 @@ export default async function handler(req: any, res: any) {
       res.status(413).json({ error: "Entrada muito longa." });
       return;
     }
-    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, messages, max_tokens, temperature: 0.5 }),
-    });
+
+    // COTA: carteira 1x/semana, demais IA 1x/dia. Trava no banco (não burlável no cliente).
+    const action = (String(body.action || "ia").replace(/[^a-z_]/gi, "").slice(0, 24)) || "ia";
+    const quota = await callRpc("consume_quota", token, { p_action: action });
+    if (!quota) {
+      // Cota indisponível (SQL ainda não rodado / erro) → falha fechada, sem gastar IA.
+      res.status(503).json({ error: "Cota de IA indisponível no momento. Tente mais tarde." });
+      return;
+    }
+    if (!quota.allowed) {
+      res.status(429).json({
+        quota: true,
+        reset_at: quota.reset_at ?? null,
+        error:
+          action === "carteira"
+            ? "Você já usou o estudo da carteira desta semana."
+            : "Você já usou esta análise hoje.",
+      });
+      return;
+    }
+
+    let r: any;
+    try {
+      r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, max_tokens, temperature: 0.5 }),
+      });
+    } catch (e) {
+      await callRpc("refund_quota", token, { p_action: action }); // IA caiu → devolve o uso
+      throw e;
+    }
+    if (!r.ok) await callRpc("refund_quota", token, { p_action: action }); // erro da IA → estorna
     const data = await r.json();
     res.status(r.status).json(data);
   } catch (e) {
